@@ -30,3 +30,59 @@ CREATE TABLE incident (
 	ON DELETE RESTRICT
 	ON UPDATE CASCADE
 );
+
+
+-- User Role Table
+CREATE TABLE user_role (
+    user_role_ID INT AUTO_INCREMENT,
+    role VARCHAR(255) NOT NULL,
+    PRIMARY KEY (user_role_ID)
+);
+
+-- User Table
+CREATE TABLE user (
+    user_ID INT AUTO_INCREMENT,
+    user_role_ID INT NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    salt VARCHAR(255),
+    PRIMARY KEY (user_ID),
+    FOREIGN KEY (user_role_ID) REFERENCES user_role(user_role_ID),
+    UNIQUE (username),
+    UNIQUE (email)
+);
+
+
+CREATE TABLE browser (
+    browser_ID INT AUTO_INCREMENT,
+    browser VARCHAR(255) NOT NULL,
+    PRIMARY KEY (browser_ID)
+);
+
+
+CREATE TABLE page (
+    page_ID INT AUTO_INCREMENT,
+    page VARCHAR(255) NOT NULL,
+    PRIMARY KEY (page_ID)
+);
+
+
+CREATE TABLE visit_tracking (
+    visit_ID INT AUTO_INCREMENT,
+    page_ID INT NOT NULL,
+    browser_ID INT NOT NULL,
+    timestamp DATETIME NOT NULL,
+    PRIMARY KEY (visit_ID),
+    FOREIGN KEY (page_ID) REFERENCES page(page_ID),
+    FOREIGN KEY (browser_ID) REFERENCES browser(browser_ID)
+);
+
+
+CREATE TABLE logged_user (
+    user_ID INT NOT NULL,
+    visit_ID INT NOT NULL,
+    PRIMARY KEY (user_ID, visit_ID),
+    FOREIGN KEY (user_ID) REFERENCES user(user_ID),
+    FOREIGN KEY (visit_ID) REFERENCES visit_tracking(visit_ID)
+);
