@@ -1,0 +1,32 @@
+CREATE TABLE asset (
+	asset_ID INT PRIMARY KEY AUTO_INCREMENT,
+	asset VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE severity (
+	severity_ID INT PRIMARY KEY AUTO_INCREMENT,
+	severity VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE incident_type (
+	incident_type_ID INT PRIMARY KEY AUTO_INCREMENT,
+	incident_type VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE incident (
+	incident_ID INT PRIMARY KEY AUTO_INCREMENT,
+	incident_type_ID INT,
+	severity_ID INT,
+	user_ID INT,
+	description TEXT,
+	created TIMESTAMP,
+	FOREIGN KEY (incident_type_ID) REFERENCES incident_type(incident_type_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE,
+	FOREIGN KEY (severity_ID) REFERENCES severity(severity_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE,
+	FOREIGN KEY (user_ID) REFERENCES user(user_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE
+);
