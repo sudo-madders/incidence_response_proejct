@@ -13,26 +13,6 @@ CREATE TABLE incident_type (
 	incident_type VARCHAR(255) NOT NULL UNIQUE
 );
 
-CREATE TABLE incident (
-	incident_ID INT PRIMARY KEY AUTO_INCREMENT,
-	incident_type_ID INT,
-	severity_ID INT,
-	user_ID INT,
-	description TEXT,
-	created TIMESTAMP,
-	FOREIGN KEY (incident_type_ID) REFERENCES incident_type(incident_type_ID)
-	ON DELETE RESTRICT
-	ON UPDATE CASCADE,
-	FOREIGN KEY (severity_ID) REFERENCES severity(severity_ID)
-	ON DELETE RESTRICT
-	ON UPDATE CASCADE,
-	FOREIGN KEY (user_ID) REFERENCES user(user_ID)
-	ON DELETE RESTRICT
-	ON UPDATE CASCADE
-);
-
-
-
 CREATE TABLE user_role (
     user_role_ID INT PRIMARY KEY AUTO_INCREMENT,
     role VARCHAR(255) NOT NULL,
@@ -51,6 +31,23 @@ CREATE TABLE user (
     UNIQUE (email)
 );
 
+CREATE TABLE incident (
+	incident_ID INT PRIMARY KEY AUTO_INCREMENT,
+	incident_type_ID INT,
+	severity_ID INT,
+	user_ID INT,
+	description TEXT,
+	created TIMESTAMP,
+	FOREIGN KEY (incident_type_ID) REFERENCES incident_type(incident_type_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE,
+	FOREIGN KEY (severity_ID) REFERENCES severity(severity_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE,
+	FOREIGN KEY (user_ID) REFERENCES user(user_ID)
+	ON DELETE RESTRICT
+	ON UPDATE CASCADE
+);
 
 CREATE TABLE browser (
     browser_ID INT PRIMARY KEY AUTO_INCREMENT,
