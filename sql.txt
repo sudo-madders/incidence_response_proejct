@@ -78,3 +78,34 @@ CREATE TABLE logged_user (
     FOREIGN KEY (user_ID) REFERENCES user(user_ID),
     FOREIGN KEY (visit_ID) REFERENCES visit_tracking(visit_ID)
 );
+
+CREATE TABLE incident_status (
+	i_status_ID int PRIMARY KEY AUTO_INCREMENT,
+	incident_ID int NOT NULL,
+	user_ID int NOT NULL,
+	timestamp DATETIME NOT NULL,
+	FOREIGN KEY (incident_ID) REFERENCES incidents (incidents_ID),
+	FOREIGN KEY (user_ID) REFERENCES user (user_ID)
+);
+
+
+CREATE TABLLE status (
+	status_ID int PRIMARY KEY AUTO_INCREMENT,
+	i_status_ID int NOT NULL,
+	status VARCHAR(255),
+	FOREIGN KEY (i_status_ID) REFERENCES incident_status (i_status_ID)
+);
+
+CREATE TABLE comment (
+	comment_ID int PRIMARY KEY AUTO_INCREMENT,
+	i_status_ID int NOT NULL,
+	comment TEXT,
+	FOREIGN KEY (i_status_ID) REFERENCES incident_status (i_status_ID)
+);
+
+CREATE TABLE evidence (
+	evidence_ID int PRIMARY KEY AUTO_INCREMENT,
+	i_status_ID int NOT NULL,
+	path VARCHAR(255),
+	FOREIGN KEY (i_status_ID) REFERENCES incident_status (i_status_ID)
+);
