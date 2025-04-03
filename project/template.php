@@ -40,6 +40,27 @@
 		</style>
 	</head>
 <body>
+
+
+
+
+<?php 
+session_name('Website'); 
+session_start(); 
+$host       = "localhost"; 
+$user       = "user_name"; // e.g. wagner24 
+$pwd        = "user_pwd"; // e.g takeAbath@06h30 
+$db         = "user_name"; // e.g wagner24 
+$mysqli     = new mysqli($host, $user, $pwd, $db); 
+$navigation = <<<END 
+ <nav> 
+      <a href="index.php">Home</a> 
+      <a href="about.php">About</a> 
+  </nav>     
+END; 
+?> 
+
+	
     <div class="container-fluid border">
 		<div class="row align-items-center">
 			<!-- Hamburger Button (visible only on small screens) -->
