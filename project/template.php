@@ -54,7 +54,7 @@ $db         = "user_name"; // e.g wagner24
 $mysqli     = new mysqli($host, $user, $pwd, $db); 
 $navigation = <<<END 
  <nav> 
-      <a href="index.php">Home</a> 
+      <a href="index.php">Incident Dashboard</a> 
       <a href="about.php">About</a> 
   </nav>     
 END; 
