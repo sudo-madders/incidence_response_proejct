@@ -1,1 +1,41 @@
+/* Custom CSS for responsive behavior */
+@media (min-width: 576px) {
+	/* Show sidebar normally on screens wider than sm */
+	#sidebarMenu {
+		position: static;
+		height: auto;
+		transform: none;
+		visibility: visible !important;
+		width: auto;
+	}
+	
+	.offcanvas-body {
+		overflow: visible;
+	}
+}
+.col-auto {
+  flex: 0 0 auto;  /* Prevent growing/shrinking */
+  width: auto;     /* Reset Bootstrap's column width */
+  min-width: min-content; /* Prevent content collapse */
+}
+#offcanvasExample {
+	width: calc(100vw - 20vw);
+}
 
+@media (min-width: 992px) {
+	#offcanvasExample {
+		width: calc(100vw - 20vw);
+	}
+}
+
+
+@media (max-width: 575.98px) {
+	/* Adjust main content margin when sidebar is open */
+	.offcanvas-start {
+		width: 250px;
+	}
+	
+	.col.border {
+		margin-left: 0 !important;
+	}
+}
