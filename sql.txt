@@ -89,7 +89,7 @@ CREATE TABLE incident_status (
 );
 
 
-CREATE TABLLE status (
+CREATE TABLE status (
 	status_ID int PRIMARY KEY AUTO_INCREMENT,
 	i_status_ID int NOT NULL,
 	status VARCHAR(255),
