@@ -55,7 +55,9 @@ $mysqli     = new mysqli($host, $user, $pwd, $db);
 $navigation = <<<END 
  <nav> 
       <a href="index.php">Incident Dashboard</a> 
-      <a href="about.php">About</a> 
+      <a href="usermanagement.php">User Managment</a> 
+	<a href="pagetrafficlogg.php">Page traffic logg</a>
+	<a href="incidentanalytics.php">Incident Analytics</a>
   </nav>     
 END; 
 ?> 
