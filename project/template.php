@@ -48,9 +48,9 @@
 session_name('Website'); 
 session_start(); 
 $host       = "localhost"; 
-$user       = "user_name"; // e.g. wagner24 
-$pwd        = "user_pwd"; // e.g takeAbath@06h30 
-$db         = "user_name"; // e.g wagner24 
+$user       = "isacli24";
+$pwd        = "FV0t2Wgb0b";
+$db         = "isacli24";
 $mysqli     = new mysqli($host, $user, $pwd, $db); 
 $navigation = <<<END 
  <nav> 
