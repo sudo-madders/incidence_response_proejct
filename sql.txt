@@ -15,7 +15,7 @@ CREATE TABLE incident_type (
 
 CREATE TABLE user_role (
     user_role_ID INT PRIMARY KEY AUTO_INCREMENT,
-    role VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL
 );
 
 
@@ -51,18 +51,18 @@ CREATE TABLE incident (
 
 CREATE TABLE browser (
     browser_ID INT PRIMARY KEY AUTO_INCREMENT,
-    browser VARCHAR(255) NOT NULL,
+    browser VARCHAR(255) NOT NULL
 );
 
 
 CREATE TABLE page (
     page_ID INT PRIMARY KEY AUTO_INCREMENT,
-    page VARCHAR(255) NOT NULL,
+    page VARCHAR(255) NOT NULL
 );
 
 
 CREATE TABLE visit_tracking (
-    visit_ID PRIMARY KEY INT AUTO_INCREMENT,
+    visit_ID int PRIMARY KEY AUTO_INCREMENT,
     page_ID INT NOT NULL,
     browser_ID INT NOT NULL,
     timestamp DATETIME NOT NULL,

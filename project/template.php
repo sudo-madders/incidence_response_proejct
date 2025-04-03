@@ -8,8 +8,8 @@
 		<link href="css/stylesheet.css" rel="stylesheet">
 	</head>
 	<body>
+	
 		<div class="container-fluid border">
-			<!-- Header + Hambuger -->
 			<div class="row align-items-center">
 				<!-- Hamburger Button (visible only on small screens) -->
 				<button class="col-auto d-sm-none btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -18,55 +18,64 @@
 				<div class="col">
 					<h1>Incident response Portal</h1>
 				</div>
-			</div>
-			<!-- Offcanvas meny-->
-			<div class="offcanvas offcanvas-start d-sm-none border" id="sidebarMenu" data-bs-scroll="true" data-bs-backdrop="true">
-				<div class="offcanvas-header d-block d-sm-none">
-					<!-- Close Button -->
-					<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+				<!-- Offcanvas meny-->
+				<div class="offcanvas offcanvas-start d-sm-none border" id="sidebarMenu" data-bs-scroll="true" data-bs-backdrop="true">
+					<div class="offcanvas-header d-block d-sm-none">
+						<!-- Close Button -->
+						<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body">
+						<ul class="nav nav-pills flex-column">
+						  <li class="nav-item">
+							<a class="nav-link active" aria-current="page" href="#">Incident Dashboard</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="#">User Managment</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="#">Page traffic logg</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="#">Incident Analytics</a>
+						  </li>
+						</ul>
+					</div>
 				</div>
-				<div class="offcanvas-body">
-					<ul class="nav nav-pills flex-column">
-					  <li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="#">Incident Dashboard</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">User Managment</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">Page traffic logg</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">Incident Analytics</a>
-					  </li>
-					</ul>
-				</div>
-			</div>
-			
-			
-			<div class="row gx-4">
-				<!-- Sidebar navigation -->
-				<div class="col-auto d-none d-sm-block">
-					<ul class="nav nav-pills flex-column">
-					  <li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="#">Incident Dashboard</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">User Managment</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">Page traffic logg</a>
-					  </li>
-					  <li class="nav-item">
-						<a class="nav-link" href="#">Incident Analytics</a>
-					  </li>
-					</ul>
-				</div>
-				<!-- Main content -->
-<?php
+				
+				
+				<div class="row gx-4">
+					<!-- Sidebar navigation -->
+					<div class="col-auto d-none d-sm-block">
+						<ul class="nav nav-pills flex-column">
+						  <li class="nav-item">
+							<a class="nav-link active" aria-current="page" href="index.php">Incident Dashboard</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="usermanagement.php">User Managment</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="pagetrafficlogg.php">Page traffic logg</a>
+						  </li>
+						  <li class="nav-item">
+							<a class="nav-link" href="incidentanalytics.php">Incident Analytics</a>
+						  </li>
+						</ul>
+					</div>
+					<!-- Main content -->
+
+<?php 
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
+
+session_name('Website'); 
+session_start(); 
+$host       = "localhost"; 
+$user       = "isacli24";
+$pwd        = "FV0t2Wgb0b";
+$db         = "isacli24";
+$mysqli     = new mysqli($host, $user, $pwd, $db);
+
 
 $footer = <<<END
 			</div>
