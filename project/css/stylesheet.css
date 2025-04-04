@@ -22,13 +22,6 @@
 	width: calc(100vw - 20vw);
 }
 
-@media (min-width: 992px) {
-	#offcanvasExample {
-		width: calc(100vw - 20vw);
-	}
-}
-
-
 @media (max-width: 575.98px) {
 	/* Adjust main content margin when sidebar is open */
 	.offcanvas-start {

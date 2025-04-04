@@ -1,23 +1,23 @@
 <?php
-include('template.php');
+include('database.php');
 if (isset($_POST['username']) and isset($_POST['password'])) {
-$name = $mysqli->real_escape_string($_POST['username']);
-$pwd = $mysqli->real_escape_string($_POST['password']);
-$query = <<<END
+	$name = $mysqli->real_escape_string($_POST['username']);
+	$pwd = $mysqli->real_escape_string($_POST['password']);
+	$query = <<<END
 
-SELECT username, password, id FROM users
-WHERE username = '{$name}'
-AND password = '{$pwd}'
-END;
-$result = $mysqli->query($query);
-if ($result->num_rows > 0) {
-$row = $result->fetch_object();
-$_SESSION["username"] = $row->username;
-$_SESSION["userId"] = $row->id;
-header("Location:index.php");
-} else {
-echo "Wrong username or password. Try again";
-}
+	SELECT username, password, id FROM users
+	WHERE username = '{$name}'
+	AND password = '{$pwd}'
+	END;
+	$result = $mysqli->query($query);
+	if ($result->num_rows > 0) {
+	$row = $result->fetch_object();
+	$_SESSION["username"] = $row->username;
+	$_SESSION["userId"] = $row->id;
+	header("Location:index.php");
+	} else {
+	echo "Wrong username or password. Try again";
+	}
 }
 $content = <<<END
 <form action="login.php" method="post">
@@ -26,7 +26,13 @@ $content = <<<END
 <input type="submit" value="Login">
 </form>
 END;
-echo $navigation;
 echo $content;
-include ('footer.php');
+
+$footer = <<<END
+			</div>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+	</body>
+</html>
+END;
+echo $footer;
 ?>

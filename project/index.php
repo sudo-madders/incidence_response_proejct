@@ -6,7 +6,6 @@ $content = <<<END
 All the tools you need is here, to report, respond, and/or resolve incidents
 </p>
 END;
-echo $navigation;
 echo $content;
-include ('footer.php');
+echo $footer;
 ?>

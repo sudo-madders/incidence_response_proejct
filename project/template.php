@@ -68,15 +68,6 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-session_name('Website'); 
-session_start(); 
-$host       = "localhost"; 
-$user       = "isacli24";
-$pwd        = "FV0t2Wgb0b";
-$db         = "isacli24";
-$mysqli     = new mysqli($host, $user, $pwd, $db);
-
-
 $footer = <<<END
 			</div>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
