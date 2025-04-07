@@ -30,13 +30,13 @@
 							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="usermanagement.php">User Managment</a>
+							<a class="nav-link" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="pagetrafficlogg.php">Page traffic logg</a>
+							<a class="nav-link" href="page_analytics.php">Page traffic logg</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="incidentanalytics.php">Incident Analytics</a>
+							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
 						  </li>
 						</ul>
 					</div>
@@ -51,13 +51,13 @@
 							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="usermanagement.php">User Managment</a>
+							<a class="nav-link" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="pagetrafficlogg.php">Page traffic logg</a>
+							<a class="nav-link" href="page_analytics.php">Page traffic logg</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="incidentanalytics.php">Incident Analytics</a>
+							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
 						  </li>
 						</ul>
 					</div>
