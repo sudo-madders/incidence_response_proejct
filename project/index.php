@@ -1,18 +1,20 @@
 <?php
+session_name('project');
+session_start();
 include('library/database.php');
 if (isset($_POST['username']) and isset($_POST['password'])) {
 	$name = $mysqli->real_escape_string($_POST['username']);
 	$pwd = $mysqli->real_escape_string($_POST['password']);
 	$query = <<<END
-	SELECT username, password, id FROM users
-	WHERE username = '{$name}'
-	AND password = '{$pwd}'
+	SELECT username, password, user_ID FROM user
+	WHERE username = '{$name}' AND password = '{$pwd}';
 	END;
 	$result = $mysqli->query($query);
 	if ($result->num_rows > 0) {
 		$row = $result->fetch_object();
 		$_SESSION["username"] = $row->username;
-		$_SESSION["userId"] = $row->id;
+		$_SESSION["user_ID"] = $row->user_ID;
+		
 		header("Location:incident_dashboard.php");
 	} else {
 	echo "Wrong username or password. Try again";
