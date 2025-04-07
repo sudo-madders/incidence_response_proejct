@@ -27,7 +27,7 @@
 					<div class="offcanvas-body">
 						<ul class="nav nav-pills flex-column">
 						  <li class="nav-item">
-							<a class="nav-link active" aria-current="page" href="index.php">Incident Dashboard</a>
+							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
 							<a class="nav-link" href="usermanagement.php">User Managment</a>
@@ -48,7 +48,7 @@
 					<div class="col-auto d-none d-sm-block">
 						<ul class="nav nav-pills flex-column">
 						  <li class="nav-item">
-							<a class="nav-link active" aria-current="page" href="index.php">Incident Dashboard</a>
+							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
 							<a class="nav-link" href="usermanagement.php">User Managment</a>
