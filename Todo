@@ -9,10 +9,10 @@
 - [ ] Front end
   - [ ] Style login page
   - [ ] Create forms
-    - [ ] Add incident form
-    - [ ] View incident form
-    - [ ] Add user form
-    - [ ] View user form
+    - [ ] Add incident form (isac)
+    - [ ] View incident form (isac)
+    - [ ] Add user form (mahdi)
+    - [ ] View user form (mahdi)
   - [ ] Create traffic log page
   - [ ] Create incident analytics page
 - [ ] Backend
