@@ -1,3 +1,7 @@
+<?php 
+session_name('project');
+session_start();
+?>
 <!doctype html>
 <html lang="en">
 	<head>
@@ -67,7 +71,7 @@
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
-
+require_once("library/tracking.php");
 $footer = <<<END
 			</div>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
