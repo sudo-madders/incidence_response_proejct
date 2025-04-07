@@ -14,7 +14,7 @@ if (isset($_POST['username']) and isset($_POST['password'])) {
 	$row = $result->fetch_object();
 	$_SESSION["username"] = $row->username;
 	$_SESSION["userId"] = $row->id;
-	header("Location:index.php");
+	header("Location:incident_dashboard.php");
 	} else {
 	echo "Wrong username or password. Try again";
 	}
