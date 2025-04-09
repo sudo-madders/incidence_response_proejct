@@ -37,7 +37,7 @@ session_start();
 							<a class="nav-link" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="page_analytics.php">Page traffic logg</a>
+							<a class="nav-link" href="page_analytics.php">Page analytics</a>
 						  </li>
 						  <li class="nav-item">
 							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
@@ -58,7 +58,7 @@ session_start();
 							<a class="nav-link" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="page_analytics.php">Page traffic logg</a>
+							<a class="nav-link" href="page_analytics.php">Page analytics</a>
 						  </li>
 						  <li class="nav-item">
 							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
