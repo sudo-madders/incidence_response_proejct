@@ -1,0 +1,18 @@
+# To do - list
+
+- [ ] Database
+  - Create views:
+    - [ ] Incident analytics
+    - [ ] Traffic analytics
+    - [ ] Incident view(?)
+    - [ ] User view (?)
+- [ ] Front end
+  - [ ] Style login page
+  - [ ] Create forms
+    - [ ] Add incident form (isac)
+    - [ ] View incident form (isac)
+    - [ ] Add user form (mahdi)
+    - [ ] View user form (mahdi)
+  - [ ] Create traffic log page
+  - [ ] Create incident analytics page
+- [ ] Backend
