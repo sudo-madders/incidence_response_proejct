@@ -1,6 +1,6 @@
 <?php 
 require_once("library/database.php");
-
+require_once("library/loging.php");
 $ip = $_SERVER['REMOTE_ADDR'];
 $browser = $_SERVER['HTTP_USER_AGENT'];
 $browsers = ["Firefox", "Chrome", "Edge", "Safari"]; // Browsers Im looking for
@@ -34,7 +34,7 @@ if ($page_id_result && $page_id_result->num_rows > 0) {
 			$query = "INSERT INTO visit_tracking (page_ID, browser_ID, ip) VALUES ($page_id, $browser_id, '$ip')";
 			if ($mysqli->query($query)) {
 				// Checks to see if a user is logged in
-				if ($_SESSION['user_ID']) {
+				if (isset($_SESSION['user_ID'])) {
 					// Inserts into logged user
 					$visit_ID = $mysqli->insert_id;
 					$user_ID = $_SESSION["user_ID"];
@@ -43,6 +43,8 @@ if ($page_id_result && $page_id_result->num_rows > 0) {
 					} else {
 						echo 'Error' . $mysqli->error;
 					}
+				} else {
+					logError("User session isnt set");
 				}
 			} else {
 				echo 'Error: ' . $mysqli->error;
