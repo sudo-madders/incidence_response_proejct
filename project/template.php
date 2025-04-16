@@ -12,7 +12,6 @@ session_start();
 		<link href="css/stylesheet.css" rel="stylesheet">
 	</head>
 	<body>
-	
 		<div class="container-fluid border">
 			<div class="row align-items-center">
 				<!-- Hamburger Button (visible only on small screens) -->
