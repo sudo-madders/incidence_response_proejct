@@ -21,8 +21,9 @@ include("template.php");
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
 											<select id="incident_type" class="form-select">
-												<option selected>Unauthorized access</option>
-												<option>Data breache</option>
+												<option selected disabled>Choose incident type</option>
+												<option>Unauthorized access</option>
+												<option>Data breach</option>
 												<option>Malware infection</option>
 												<option>Denial-of-service</option>
 												<option>Insider threat</option>
@@ -30,17 +31,48 @@ include("template.php");
 												<option>Physical security breache</option>
 												<option>Compliance violation</option>
 											</select>
+											
+											
+											<br>
+											Affected assets
+											<br>
+											
+											<input type="checkbox" name="affected_assets[]" value="inventory" id="affected_inventory">
+											<label for="affected_inventory">Inventory</label>
+											<br>
+											<input type="checkbox" name="affected_assets[]" value="devices" id="affected_devices">
+											<label for="affected_devices">Devices</label>
+											<br>
+											<input type="checkbox" name="affected_assets[]" value="users" id="affected_users">
+											<label for="affected_users">Users</label>
+											<br>
+											<input type="checkbox" name="affected_assets[]" value="network" id="affected_network">
+											<label for="affected_network">Network</label>
+											
+											
+											
+											
+											<br>
+											
+											
 										</div>
+										
 										<div class="col-md-6">
 											<label for="severity" class="form-label">Severity</label>
 											<select id="severity" class="form-select">
-												<option selected>Low</option>
+												<option selected disabled>Choose severity</option>
+												<option>Low</option>
 												<option>Medium</option>
 												<option>High</option>
 												<option>Critical</option>
 											</select>
 										</div>
 									</div>
+									<br>
+									<label for="description" class="form-label">Description</label>
+									<textarea  class="form-control" id="description" name="description" rows="3" required></textarea>
+									<br>
+								<input type="submit" value="Submit">
 								</form>
 							</div>
 						</div>
