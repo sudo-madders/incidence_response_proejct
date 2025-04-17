@@ -17,15 +17,42 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
     
     if ($mysqli->query($query) === TRUE) {
-    header('Location: incident_dashboard.php');
-    exit;
-} else {
-    echo("Could not query database: " . $mysqli->errno . " : " . $mysqli->error);
-}
+        $incident_id = $mysqli->insert_id;
 
-    
-    header('Location: incident_dashboard.php');
-    exit;
+        
+        if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
+            
+            foreach ($_POST['affected_assets'] as $asset_value) {
+                $asset_clean = $mysqli->real_escape_string($asset_value);
+
+               
+                $asset_ids = [
+                    'inventory' => 1,
+                    'users' => 2,
+                    'devices' => 3,
+                    'network' => 4,
+                ];
+
+                
+                if (array_key_exists($asset_clean, $asset_ids)) {
+                    $asset_id = $asset_ids[$asset_clean];
+
+                    
+                    $insert_asset = "INSERT INTO affected_assets (asset_ID, incident_ID) 
+                                     VALUES ($asset_id, $incident_id)";
+                    $mysqli->query($insert_asset);
+                } else {
+                    echo "Warning: Asset '$asset_clean' not recognized.<br>";
+                }
+            }
+        }
+
+        
+        header('Location: incident_dashboard.php');
+        exit;
+    } else {
+        die("Could not insert incident: " . $mysqli->errno . " - " . $mysqli->error);
+    }
 }
 ?>
 
