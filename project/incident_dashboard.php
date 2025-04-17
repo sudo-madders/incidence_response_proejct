@@ -1,6 +1,7 @@
 <?php 
 
 include('library/database.php');
+include('filter_incidents.php');
 
 if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
