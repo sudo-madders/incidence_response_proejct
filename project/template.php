@@ -1,6 +1,9 @@
 <?php 
 session_name('project');
 session_start();
+
+$currentPage = $_SERVER['PHP_SELF'];
+$currentPage = explode("/", $currentPage)[2];
 ?>
 <!doctype html>
 <html lang="en">
@@ -31,16 +34,16 @@ session_start();
 					<div class="offcanvas-body">
 						<ul class="nav nav-pills flex-column">
 						  <li class="nav-item">
-							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
+							<a class="nav-link <?php if ($currentPage == 'incident_dashboard.php') { echo 'active'; }?>" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="user_management.php">User Managment</a>
+							<a class="nav-link <?php if ($currentPage == 'user_management.php') { echo 'active'; }?>" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="page_analytics.php">Page analytics</a>
+							<a class="nav-link <?php if ($currentPage == 'page_analytics.php') { echo 'active'; }?>" href="page_analytics.php">Page analytics</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
+							<a class="nav-link <?php if ($currentPage == 'incident_analytics.php') { echo 'active'; }?>" href="incident_analytics.php">Incident Analytics</a>
 						  </li>
 						</ul>
 					</div>
@@ -52,16 +55,16 @@ session_start();
 					<div class="col-auto d-none d-sm-block">
 						<ul class="nav nav-pills flex-column">
 						  <li class="nav-item">
-							<a class="nav-link active" aria-current="page" href="incident_dashboard.php">Incident Dashboard</a>
+							<a class="nav-link <?php if ($currentPage == 'incident_dashboard.php') { echo 'active'; }?>" href="incident_dashboard.php">Incident Dashboard</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="user_management.php">User Managment</a>
+							<a class="nav-link <?php if ($currentPage == 'user_management.php') { echo 'active'; }?>" href="user_management.php">User Managment</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="page_analytics.php">Page analytics</a>
+							<a class="nav-link <?php if ($currentPage == 'page_analytics.php') { echo 'active'; }?>" href="page_analytics.php">Page analytics</a>
 						  </li>
 						  <li class="nav-item">
-							<a class="nav-link" href="incident_analytics.php">Incident Analytics</a>
+							<a class="nav-link <?php if ($currentPage == 'incident_analytics.php') { echo 'active'; }?>" href="incident_analytics.php">Incident Analytics</a>
 						  </li>
 						</ul>
 					</div>
