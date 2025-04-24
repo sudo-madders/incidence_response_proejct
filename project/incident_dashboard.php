@@ -1,5 +1,9 @@
-<?php 
+ 
 
+
+
+<?php 
+include("template.php");
 include('library/database.php');
 include('filter_incidents.php');
 
@@ -32,6 +36,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                     'users' => 2,
                     'devices' => 3,
                     'network' => 4,
+					'other' => 5,
                 ];
 
                 
@@ -57,9 +62,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 }
 ?>
 
-<?php 
-include("template.php");
-?>
+
 				<!-- Main content -->
 				<div class="col">
 					<div class="row mb-3 border">
@@ -108,6 +111,9 @@ include("template.php");
 											<br>
 											<input type="checkbox" name="affected_assets[]" value="network" id="affected_network">
 											<label for="affected_network">Network</label>
+											<br>
+											<input type="checkbox" name="affected_assets[]" value="other" id="affected_other">
+											<label for="affected_other">Other</label>
 											
 											
 											
@@ -139,51 +145,97 @@ include("template.php");
 					</div>
 					
 					<div class="row mb-3 border">
-						<div class="row">
-							<div class="col"><p>Incident ID: 1</p></div>
-							<div class="col"><p>Incident Type: DDoS</p></div>
-							<div class="col"><p>Severity: Critical</p></div>
-						</div>
+						
 						<button type="button" class="btn btn-primary mx-auto" style="width: 150px" data-bs-toggle="offcanvas" data-bs-target="#newIncident" aria-controls="newIncident">
-							Show more
+							Filter Incidents
 						</button>
 							
 						<!-- Offcanvas, More selection -->
 						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="newIncident" aria-labelledby="newIncidentLabel">
 							<div class="offcanvas-header">
-								<h5 class="offcanvas-title" id="newIncidentLabel">Incident 1</h5>
+								<h5 class="offcanvas-title" id="newIncidentLabel">Reports filter</h5>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
-								<form>
+								<form method="post" action="incident_dashboard.php">
+									<input type="hidden" name="filter" value="1">
 									<div class="row">
 										<div class="col-md-6">
-											<label for="incident_type" class="form-label">Incident Type</label>
-											<select id="incident_type" class="form-select">
-												<option selected>Unauthorized access</option>
-												<option>Data breache</option>
-												<option>Malware infection</option>
-												<option>Denial-of-service</option>
-												<option>Insider threat</option>
-												<option>Social engineering attack</option>
-												<option>Physical security breache</option>
-												<option>Compliance violation</option>
+											<label for="incident_type" class="form-label">Incident type filter</label>
+											<select class="form-select" name="incident_type" required>
+												<option selected disabled>Choose incident type</option>
+												<option value="Unauthorized access attacks">Unauthorized access attacks</option>
+												<option value="Man-in-the-middle">Man-in-the-middle</option>
+												<option value="Theft">Theft</option>
+												<option value="Denial of service">Denial of service</option>
+												<option value="Insider threats">Insider threats</option>
+												<option value="Ransomware">Ransomware</option>
+												<option value="Privilege escalation">Privilege escalation</option>
+												<option value="Phishing attack">Phishing attack</option>
+												<option value="Password attack">Password attack</option>
 											</select>
+											
+											
+											<br>
+											
+											
 										</div>
+										
 										<div class="col-md-6">
-											<label for="severity" class="form-label">Severity</label>
-											<select id="severity" class="form-select">
-												<option selected>Low</option>
-												<option>Medium</option>
-												<option>High</option>
-												<option>Critical</option>
+											<label for="severity" class="form-label">Severity filter</label>
+											<select class="form-select" name="severity" required>
+												<option selected disabled>Choose severity</option>
+												<option value="Low">Low</option>
+												<option value="Medium">Medium</option>
+												<option value="High">High</option>
+												<option value="Critical">Critical</option>
 											</select>
 										</div>
 									</div>
+									<br>
+									
+									
+								<input type="submit" value="Show reports">
 								</form>
+								
+								
+								
 							</div>
 						</div>
+						
+						<?php if (!empty($incidents)): ?>
+					<div class="row my-3">
+							<h3>Filtered Incidents:</h3>
+						<?php foreach ($incidents as $incident): ?>
+					<div class="col-12 my-2 border-bottom pb-2">
+								<p><strong>Incident ID:</strong> <?= htmlspecialchars($incident['incident_ID']) ?></p>
+								<p><strong>Description:</strong> <?= htmlspecialchars($incident['description']) ?></p>
+
+						<?php
+                
+						$incident_type_id = (int)$incident['incident_type_ID'];
+						$severity_id = (int)$incident['severity_ID'];
+
+						$type_result = $mysqli->query("SELECT incident_type FROM incident_type WHERE incident_type_ID = $incident_type_id");
+						$severity_result = $mysqli->query("SELECT severity FROM severity WHERE severity_ID = $severity_id");
+
+						$incident_type = $type_result->fetch_assoc()['incident_type'] ?? 'Unknown';
+						$severity = $severity_result->fetch_assoc()['severity'] ?? 'Unknown';
+						?>
+						<p><strong>Type:</strong> <?= htmlspecialchars($incident_type) ?></p>
+						<p><strong>Severity:</strong> <?= htmlspecialchars($severity) ?></p>
+					</div>
+						<?php endforeach; ?>
+					</div>
+						<?php else: ?>
+						<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])): ?>
+						<p class="text-muted">No incidents matched your filter.</p>
+					<?php endif; ?>
+				<?php endif; ?>
+					
+
+					
 					</div>
 					
 					<!--Here the row ends -->
@@ -211,3 +263,5 @@ include("template.php");
 <?php
 echo $footer;
 ?>
+
+<!-- Teständring för git -->awdawdawdawdqssawdwad
