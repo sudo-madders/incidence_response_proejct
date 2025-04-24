@@ -264,4 +264,3 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 echo $footer;
 ?>
 
-<!-- Teständring för git -->awdawdawdawdqssawdwad
