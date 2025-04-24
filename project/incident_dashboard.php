@@ -1,5 +1,5 @@
 <?php 
-
+include("template.php");
 include('library/database.php');
 include('filter_incidents.php');
 
@@ -58,7 +58,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 ?>
 
 <?php 
-include("template.php");
+
 ?>
 				<!-- Main content -->
 				<div class="col">
