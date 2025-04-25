@@ -25,7 +25,17 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
         
         if ($stmt->execute()) {
             $incident_id = $mysqli->insert_id;
-
+			
+			$user_ID = $_SESSION['user_ID'];
+			$query = "
+				INSERT INTO incident_status (status_ID, incident_ID, user_ID) 
+				VALUES (
+					(SELECT status FROM status WHERE status_ID = ?),
+					?,
+					?
+				)";
+				
+			$stmt->bind_param("sss", $status_ID, $incident_ID, $user_ID);
             
             if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
                 foreach ($_POST['affected_assets'] as $asset_value) {
@@ -198,6 +208,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                 <th>Description</th>
                 <th>Type</th>
                 <th>Severity</th>
+				<th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -218,15 +229,41 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                     <td><?= htmlspecialchars($incident['description']) ?></td>
                     <td><?= htmlspecialchars($incident_type) ?></td>
                     <td><?= htmlspecialchars($severity) ?></td>
+					<td>Status</td>
                     <td>
-                        <a href="edit_incident.php?incident_id=<?= $incident['incident_ID'] ?>" class="btn btn-sm btn-primary">Edit</a>
+						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+							Edit
+						</button>
+						
+						<!-- Offcanvas, More selection -->
+						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
+							<div class="offcanvas-header">
+								<h5 class="offcanvas-title" id="addNewIncidentLabel">incident_<?= htmlspecialchars($incident['incident_ID']) ?></h5>
+								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+							</div>
+							<div class="offcanvas-body ">
+								<!-- Här börjar själva panelen -->
+								
+							</div>
+						</div>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
-
+<script>
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+</script>
 	
 	
 <?php else: ?>
@@ -236,15 +273,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
         <p class="text-muted">No incidents available.</p>
     <?php endif; ?>
 <?php endif; ?>
-
-					
-
-					
-					</div>
-					
-					
-		
-		
 
 <?php
 echo $footer;
