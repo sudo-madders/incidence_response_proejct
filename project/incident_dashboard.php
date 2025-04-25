@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 <?php
-=======
-<?php 
->>>>>>> 8940896886c657fc74b20f641789380fdf376f9f
 include("template.php");
 include('library/database.php');
 include('filter_incidents.php');
@@ -71,12 +67,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     }
 }
 ?>
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 8940896886c657fc74b20f641789380fdf376f9f
 				<!-- Main content -->
 				<div class="col">
 					<div class="row mb-3 border">
