@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 <?php
-=======
-<?php 
->>>>>>> 8940896886c657fc74b20f641789380fdf376f9f
 include("template.php");
 include('library/database.php');
 include('filter_incidents.php');
@@ -29,7 +25,17 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
         
         if ($stmt->execute()) {
             $incident_id = $mysqli->insert_id;
-
+			
+			$user_ID = $_SESSION['user_ID'];
+			$query = "
+				INSERT INTO incident_status (status_ID, incident_ID, user_ID) 
+				VALUES (
+					(SELECT status FROM status WHERE status_ID = ?),
+					?,
+					?
+				)";
+				
+			$stmt->bind_param("sss", $status_ID, $incident_ID, $user_ID);
             
             if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
                 foreach ($_POST['affected_assets'] as $asset_value) {
@@ -71,12 +77,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     }
 }
 ?>
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 8940896886c657fc74b20f641789380fdf376f9f
 				<!-- Main content -->
 				<div class="col">
 					<div class="row mb-3 border">
@@ -96,17 +96,19 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 									<div class="row">
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
+											
 											<select class="form-select" name="incident_type" required>
 												<option selected disabled>Choose incident type</option>
-												<option value="Unauthorized access attacks">Unauthorized access attacks</option>
-												<option value="Man-in-the-middle">Man-in-the-middle</option>
-												<option value="Theft">Theft</option>
-												<option value="Denial of service">Denial of service</option>
-												<option value="Insider threats">Insider threats</option>
-												<option value="Ransomware">Ransomware</option>
-												<option value="Privilege escalation">Privilege escalation</option>
-												<option value="Phishing attack">Phishing attack</option>
-												<option value="Password attack">Password attack</option>
+												<?php
+												$query = "SELECT incident_type FROM incident_type";
+												$result = $mysqli->query($query);
+												if ($result && $result->num_rows > 0) {
+													while ($row = $result->fetch_assoc()) {
+														$incident_type = $row['incident_type'];
+														echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
+													}
+												}
+												?>
 											</select>
 											
 											
@@ -167,15 +169,16 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			<label for="incident_type" class="form-label">Incident Type</label>
 			<select class="form-select" name="incident_type">
 				<option selected disabled>Choose incident type</option>
-				<option value="Unauthorized access attacks">Unauthorized access attacks</option>
-				<option value="Man-in-the-middle">Man-in-the-middle</option>
-				<option value="Theft">Theft</option>
-				<option value="Denial of service">Denial of service</option>
-				<option value="Insider threats">Insider threats</option>
-				<option value="Ransomware">Ransomware</option>
-				<option value="Privilege escalation">Privilege escalation</option>
-				<option value="Phishing attack">Phishing attack</option>
-				<option value="Password attack">Password attack</option>
+				<?php
+				$query = "SELECT incident_type FROM incident_type";
+				$result = $mysqli->query($query);
+				if ($result && $result->num_rows > 0) {
+					while ($row = $result->fetch_assoc()) {
+						$incident_type = $row['incident_type'];
+						echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
+					}
+				}
+				?>
 			</select>
 		</div>
 
@@ -208,6 +211,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                 <th>Description</th>
                 <th>Type</th>
                 <th>Severity</th>
+				<th>Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -228,15 +232,41 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                     <td><?= htmlspecialchars($incident['description']) ?></td>
                     <td><?= htmlspecialchars($incident_type) ?></td>
                     <td><?= htmlspecialchars($severity) ?></td>
+					<td>Status</td>
                     <td>
-                        <a href="edit_incident.php?incident_id=<?= $incident['incident_ID'] ?>" class="btn btn-sm btn-primary">Edit</a>
+						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+							Edit
+						</button>
+						
+						<!-- Offcanvas, More selection -->
+						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
+							<div class="offcanvas-header">
+								<h5 class="offcanvas-title" id="addNewIncidentLabel">incident_<?= htmlspecialchars($incident['incident_ID']) ?></h5>
+								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+							</div>
+							<div class="offcanvas-body ">
+								<!-- Här börjar själva panelen -->
+								
+							</div>
+						</div>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
-
+<script>
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+</script>
 	
 	
 <?php else: ?>
@@ -247,16 +277,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     <?php endif; ?>
 <?php endif; ?>
 
-					
-
-					
-					</div>
-					
-					
-		
-		
-
 <?php
 echo $footer;
 ?>
-
