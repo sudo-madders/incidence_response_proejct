@@ -1,5 +1,6 @@
 /* Makes the offcanvas 80% of the screen width*/
-.offcanvas_width {
-	width: 80vw !important;
+#offcanvasExample {
+	width: calc(100vw - 20vw);
 }
+
 

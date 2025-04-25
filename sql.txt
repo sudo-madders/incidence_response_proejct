@@ -49,14 +49,6 @@ CREATE TABLE incident (
 	ON UPDATE CASCADE
 );
 
-CREATE TABLE affected_assets (
-	asset_ID INT NOT NULL,
-    incident_ID INT NOT NULL,
-    PRIMARY KEY (asset_ID, incident_ID),
-    FOREIGN KEY (asset_ID) REFERENCES asset (asset_ID),
-    FOREIGN KEY (incident_ID) REFERENCES incident (incident_ID)
-);
-
 CREATE TABLE browser (
     browser_ID INT PRIMARY KEY AUTO_INCREMENT,
     browser VARCHAR(255) NOT NULL
