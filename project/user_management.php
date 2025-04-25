@@ -1,3 +1,4 @@
+
 <?php 
 include("template.php");
 
@@ -62,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $stmt->bind_param("sssssi", $username, $password, $email, $first_name, $last_name, $role_id);
 
     if ($stmt->execute()) {
-        header('Location: ' . $_SERVER['PHP_SELF'] . '?success=1');
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?success=add');
         exit();
     } else {
         die("Error creating user: " . $stmt->error);
@@ -70,9 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 }
 ?>
 
-<?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
-<div class="alert alert-success text-center">User added successfully!</div>
+<?php if (isset($_GET['success'])): ?>
+    <?php if ($_GET['success'] === 'add'): ?>
+        <div class="alert alert-success text-center">User added successfully!</div>
+    <?php elseif ($_GET['success'] === 'edit'): ?>
+        <div class="alert alert-success text-center">User updated successfully!</div>
+    <?php elseif ($_GET['success'] === 'delete'): ?>
+        <div class="alert alert-success text-center">User deleted successfully!</div>
+    <?php endif; ?>
 <?php endif; ?>
+
 
 <div class="col">
     <div class="row mb-3 border">
@@ -144,30 +152,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     </div>
 </div>
 
-<?php 
-echo $footer;
-?>
-
 
     <div class="row mb-3 border">
-        <div class="row">
-            <div class="col"><p>User ID: 1</p></div>
-            <div class="col"><p>Incident Type: DDoS</p></div>
-            <div class="col"><p>Severity: Critical</p></div>
-        </div>
-        <button type="button" class="btn btn-primary mx-auto" style="width: 150px" data-bs-toggle="offcanvas" data-bs-target="#newIncident" aria-controls="newIncident">
-            Show more
-        </button>
-
-        <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="newIncident" aria-labelledby="newIncidentLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="newIncidentLabel">User 1</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <!-- Placeholder -->
-            </div>
-        </div>
+        <!-- Users Table -->
+		<div class="mt-4">
+			<h1>users' table</h1>
+			<table class="table table-bordered table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>ID</th>
+						<th>Username</th>
+						<th>Name</th>
+						<th>Email</th>
+						<th>Role</th>
+						<th style="width: 150px;">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php
+					$query = "SELECT u.user_id, u.username, u.email, u.first_name, u.last_name, r.role 
+							  FROM user u 
+							  JOIN user_role r ON u.user_role_ID = r.user_role_ID 
+							  ORDER BY u.last_name, u.first_name";
+					$result = $mysqli->query($query);
+					while ($row = $result->fetch_assoc()):
+					?>
+					<tr>
+						<td><?= $row['user_id'] ?></td>
+						<td><?= htmlspecialchars($row['username']) ?></td>
+						<td><?= htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) ?></td>
+						<td><?= htmlspecialchars($row['email']) ?></td>
+						<td><?= htmlspecialchars($row['role']) ?></td>
+						<td>
+							<a href="edit_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-primary">Edit</a>
+							<a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
+						</td>
+					</tr>
+					<?php endwhile; ?>
+				</tbody>
+			</table>
+		</div>
     </div>
 </div>
 
