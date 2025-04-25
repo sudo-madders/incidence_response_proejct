@@ -96,17 +96,19 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 									<div class="row">
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
+											
 											<select class="form-select" name="incident_type" required>
 												<option selected disabled>Choose incident type</option>
-												<option value="Unauthorized access attacks">Unauthorized access attacks</option>
-												<option value="Man-in-the-middle">Man-in-the-middle</option>
-												<option value="Theft">Theft</option>
-												<option value="Denial of service">Denial of service</option>
-												<option value="Insider threats">Insider threats</option>
-												<option value="Ransomware">Ransomware</option>
-												<option value="Privilege escalation">Privilege escalation</option>
-												<option value="Phishing attack">Phishing attack</option>
-												<option value="Password attack">Password attack</option>
+												<?php
+												$query = "SELECT incident_type FROM incident_type";
+												$result = $mysqli->query($query);
+												if ($result && $result->num_rows > 0) {
+													while ($row = $result->fetch_assoc()) {
+														$incident_type = $row['incident_type'];
+														echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
+													}
+												}
+												?>
 											</select>
 											
 											
@@ -167,15 +169,16 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			<label for="incident_type" class="form-label">Incident Type</label>
 			<select class="form-select" name="incident_type">
 				<option selected disabled>Choose incident type</option>
-				<option value="Unauthorized access attacks">Unauthorized access attacks</option>
-				<option value="Man-in-the-middle">Man-in-the-middle</option>
-				<option value="Theft">Theft</option>
-				<option value="Denial of service">Denial of service</option>
-				<option value="Insider threats">Insider threats</option>
-				<option value="Ransomware">Ransomware</option>
-				<option value="Privilege escalation">Privilege escalation</option>
-				<option value="Phishing attack">Phishing attack</option>
-				<option value="Password attack">Password attack</option>
+				<?php
+				$query = "SELECT incident_type FROM incident_type";
+				$result = $mysqli->query($query);
+				if ($result && $result->num_rows > 0) {
+					while ($row = $result->fetch_assoc()) {
+						$incident_type = $row['incident_type'];
+						echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
+					}
+				}
+				?>
 			</select>
 		</div>
 
