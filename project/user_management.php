@@ -150,8 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             </div>
         </div>
     </div>
-</div>
-
 
     <div class="row mb-3 border">
         <!-- Users Table -->
@@ -184,6 +182,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 						<td><?= htmlspecialchars($row['email']) ?></td>
 						<td><?= htmlspecialchars($row['role']) ?></td>
 						<td>
+							<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
+								Edit
+							</button>
+						
+							<!-- Offcanvas, More selection -->
+							<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="user_<?= htmlspecialchars($row['user_id']) ?>" aria-labelledby="addNewIncidentLabel">
+								<div class="offcanvas-header">
+									<h5 class="offcanvas-title" id="addNewIncidentLabel">user_<?= htmlspecialchars($row['user_id']) ?></h5>
+									<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+								</div>
+								<div class="offcanvas-body ">
+									<!-- Här börjar själva panelen -->
+									
+								</div>
+							</div>
 							<a href="edit_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-primary">Edit</a>
 							<a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
 						</td>
@@ -194,6 +207,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 		</div>
     </div>
 </div>
+</div>
+<script>
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+</script>
 
 <?php 
 echo $footer;
