@@ -2,21 +2,87 @@
 include("template.php");
 include("library/database.php");
 ?>
+
 <div class="col-md-8 border m-auto">
-	<table id="userTable" class="display table table-striped table-bordered table-hover" style="width:100%">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>Page</th>
-				<th>Browser</th>
-				<th>IP</th>
-				<th>Username</th>
-				<th>Timestamp</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+	<div class="row border border-primary my-3">
+		<table class=" table table-striped table-bordered table-hover" style="width:100%">
+			<thead class="table-dark">
+				<tr>
+					<th>Page</th>
+					<th>Visits</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php 
+					$query = "SELECT * FROM page_views";
+					$result = $mysqli->query($query);
+					while ($row = $result->fetch_assoc()) {
+						$visits = $row['Visits'];
+						$page = $row['Page'];
+						echo '<tr>';
+						echo '<td>' . $page . '</td>';
+						echo '<td>' . $visits . '</td>';
+						echo '</tr>';
+					}	
+				?>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="row border border-primary mb-3">
+		<table class=" table table-striped table-bordered table-hover" style="width:100%">
+			<thead class="table-dark">
+				<tr>
+					<th>IP</th>
+					<th>Visits</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php 
+					$query = "SELECT * FROM ip_visits";
+					$result = $mysqli->query($query);
+					while ($row = $result->fetch_assoc()) {
+						$visits = $row['Visits'];
+						$IP = $row['IP'];
+						
+						echo '<tr>';
+						if ($IP == "83.251.155.142") {
+							$user = "David";
+							echo '<td>' . $IP . " - " . $user . '</td>';
+						} elseif ($IP == "89.233.192.111") {
+							$user = "Isac";
+							echo '<td>' . $IP . " - " . $user . '</td>';
+						} elseif ($IP == "84.218.126.196") {
+							$user = "Mahdif";
+							echo '<td>' . $IP . " - " . $user . '</td>';
+						} else {
+							echo '<td>' . $IP . '</td>';
+						}
+						
+						
+						echo '<td>' . $visits . '</td>';
+						echo '</tr>';
+					}	
+				?>
+			</tbody>
+		</table>
+	</div>
+	<div class="row border border-primary">
+		<table id="userTable" class="display table table-striped table-bordered table-hover" style="width:100%">
+			<thead class="table-dark">
+				<tr>
+					<th>ID</th>
+					<th>Page</th>
+					<th>Browser</th>
+					<th>IP</th>
+					<th>Username</th>
+					<th>Timestamp</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
 </div>
 <script>
 $(document).ready(function() {
