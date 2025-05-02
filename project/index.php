@@ -2,6 +2,7 @@
 session_name('project');
 session_start();
 include('library/database.php');
+include('library/tracking.php');
 if (isset($_POST['username']) and isset($_POST['password'])) {
 	$name = $mysqli->real_escape_string($_POST['username']);
 	$pwd = $mysqli->real_escape_string($_POST['password']);
