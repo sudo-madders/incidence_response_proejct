@@ -167,8 +167,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
 		<div class="col-md-2">
 			<label for="incident_type" class="form-label">Incident Type</label>
-			<select class="form-select" name="incident_type">
-				<option selected disabled>Choose incident type</option>
+			<select class="form-select" name="incident_type" id="incident_type">
+				<option selected>All</option>
 				<?php
 				$query = "SELECT incident_type FROM incident_type";
 				$result = $mysqli->query($query);
@@ -184,8 +184,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
 		<div class="col-md-2">
 			<label for="severity" class="form-label">Severity</label>
-			<select class="form-select" name="severity">
-				<option selected disabled>Choose severity</option>
+			<select class="form-select" name="severity" id="severity">
+				<option selected>All</option>
 				<option value="Low">Low</option>
 				<option value="Medium">Medium</option>
 				<option value="High">High</option>
@@ -199,12 +199,9 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 		</div>
 	</form>
 </div>
-							
-						
-						
 						<?php if (!empty($incidents)): ?>
-    <div class="table-responsive">
-    <table class="table table-striped table-bordered align-middle">
+    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-striped table-bordered align-middle" id="incident_table">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
@@ -255,18 +252,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
         </tbody>
     </table>
 </div>
-<script>
-document.addEventListener('click', function(event) {
-  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
-    const targetId = event.target.getAttribute('data-bs-target');
-    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
-    if (offcanvasElement) {
-      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
-      offcanvas.show();
-    }
-  }
-});
-</script>
+
 	
 	
 <?php else: ?>
@@ -277,6 +263,86 @@ document.addEventListener('click', function(event) {
     <?php endif; ?>
 <?php endif; ?>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+var incident_filter = document.getElementById("incident_type");
+var severity_filter = document.getElementById("severity");
+var myTable = document.getElementById("incident_table");
+var tableRows = myTable.getElementsByTagName("tr");
+
+function filterTable() {
+console.log("Update");
+var formData = new FormData();
+formData.append("incident_type", incident_filter.value);
+formData.append("severity", severity_filter.value);
+formData.append("filter", "yes");
+
+fetch("/project/test.php",{
+method: 'POST',
+body: formData
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`); // Use backticks here
+  }
+  return response.json();
+})
+.then(data => {
+ console.log(data);
+ updateTable(data);
+})
+.catch(error => {
+  console.error(`There was an error sending the request or processing the response: ${error.message}`);
+});
+}
+
+function updateTable(data) {
+  // Clear the existing table rows (except the header)
+  var tbody = myTable.getElementsByTagName('tbody')[0];
+  while (tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild);
+  }
+
+  // Populate the table with the new data
+  data.forEach(row => {
+    var newRow = tbody.insertRow();
+
+    var cell1 = newRow.insertCell();
+    cell1.textContent = row.incident_ID;
+
+    var cell2 = newRow.insertCell();
+    cell2.textContent = row.incident_type;
+
+    var cell3 = newRow.insertCell();
+    cell3.textContent = row.severity;
+
+    var cell4 = newRow.insertCell();
+    cell4.textContent = row.description;
+	
+	var cell5 = newRow.insertCell();
+    cell5.textContent = "Status";
+	
+	var cell6 = newRow.insertCell();
+    cell6.innerHTML = row.edit;
+  });
+}
+ 
+  // Add event listeners to both select elements
+ incident_filter.addEventListener('change', filterTable);
+ severity_filter.addEventListener('change', filterTable);
+
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+});
+</script>
 <?php
 echo $footer;
 ?>
