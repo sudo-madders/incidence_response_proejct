@@ -15,28 +15,35 @@ include("template.php");
       // instantiates the pie chart, passes in the data and
       // draws it.
       function drawChart() {
-
-        // Create the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Topping');
-        data.addColumn('number', 'Slices');
-        data.addRows([
-          ['Mushrooms', 3],
-          ['Onions', 1],
-          ['Olives', 1],
-          ['Zucchini', 1],
-          ['Pepperoni', 2]
-        ]);
-
-        // Set chart options
-        var options = {'title':'How Much Pizza I Ate Last Night',
-                       'width':400,
-                       'height':300};
-
-        // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-        chart.draw(data, options);
+  fetch('library/get_chart_data.php')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      return response.json();
+    })
+    .then(responseJson => { // The API returns an object with a "data" property
+      const dataFromApi = responseJson.data;
+      const dataTable = new google.visualization.DataTable();
+
+      if (dataFromApi && dataFromApi.length > 0) {
+        dataTable.addColumn('string', 'Incident Type');
+        dataTable.addColumn('number', 'Count');
+
+        dataFromApi.forEach(item => {
+          dataTable.addRow([item.incident_type, parseInt(item.count)]); // Parse count as integer
+        });
+
+        const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+        chart.draw(dataTable, { title: 'Incident Types' });
+      } else {
+        console.log('No data received from the API.');
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+}
     </script>
 
 <div class="col-md-8 border m-auto">
