@@ -53,7 +53,7 @@ include("library/database.php");
 							$user = "Isac";
 							echo '<td>' . $IP . " - " . $user . '</td>';
 						} elseif ($IP == "84.218.126.196") {
-							$user = "Mahdif";
+							$user = "Mahdi";
 							echo '<td>' . $IP . " - " . $user . '</td>';
 						} else {
 							echo '<td>' . $IP . '</td>';

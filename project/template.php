@@ -16,12 +16,12 @@ $currentPage = explode("/", $currentPage)[2];
 		
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
-		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		<script src="https://www.gstatic.com/charts/loader.js"></script>
 	</head>
 	<body>
 		<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 		<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-		<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+		<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 		<div class="container-fluid border">
 			<div class="row align-items-center">
 				<!-- Hamburger Button (visible only on small screens) -->
