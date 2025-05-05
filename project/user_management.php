@@ -1,17 +1,6 @@
-
 <?php 
 include("template.php");
-
-$mysqli = new mysqli("localhost", "isacli24", "FV0t2Wgb0b", "isacli24");
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-?>
-
-<?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+require("library/database.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
@@ -193,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 									<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 								</div>
 								<div class="offcanvas-body ">
-                                <?php        
+                                <?php
                                 $id = intval($_GET['id']);
                                 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $new_role = $_POST['role'];
@@ -225,13 +214,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                                     </select>
                                     <button type="submit" class="btn btn-primary mt-2">Update Role</button>
                                 </form>
-                                
-
-
-
-
-
-
 									<!-- Här börjar själva panelen -->
 									
 								</div>
