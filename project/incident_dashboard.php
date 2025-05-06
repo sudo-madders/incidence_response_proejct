@@ -210,10 +210,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			</select>
 		</div>
 
-		<div class="col-auto">
-			<button type="submit" class="btn btn-primary">Filter</button>
-			<a href="incident_dashboard.php" class="btn btn-primary">Clear Filter</a>
-		</div>
+		
 	</form>
 </div>
 						<?php if (!empty($incidents)): ?>
@@ -287,6 +284,10 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							</div>
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
+								
+								<label for="comment" class="form-label">Add a comment</label>
+									<textarea  class="form-control" id="comment" name="comment" rows="3" required></textarea>
+								
 								
 							</div>
 						</div>
