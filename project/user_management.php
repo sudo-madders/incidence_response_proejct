@@ -1,6 +1,12 @@
 <?php 
 require_once("template.php");
 
+if ($_SESSION["role"] != "administrator") {
+	header('HTTP/1.0 401 Unauthorized');
+    echo 'You must be administrator in to access this page.';
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
     foreach ($required as $field) {

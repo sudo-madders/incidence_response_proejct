@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_ID'])) {
     exit;
 }
 
-require("database.php"); //  Ensure this path is correct!
+require_once("database.php"); //  Ensure this path is correct!
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
