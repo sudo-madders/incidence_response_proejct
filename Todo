@@ -6,3 +6,4 @@
 - User must be able to upload files and add comments
 - Incident tracking (?)
 - Add new incident form, <br> -> margin (mb-1-5)
+- Validate all sites with w3 validator

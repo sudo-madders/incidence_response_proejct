@@ -14,7 +14,6 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-//$query = "SELECT visit_ID, page_ID, browser_ID, ip, timestamp FROM visit_tracking"; //  Correct and specific
 $query = "SELECT visit_ID, page, browser, ip, username, timestamp FROM page_analytics";
 $result = $mysqli->query($query);
 

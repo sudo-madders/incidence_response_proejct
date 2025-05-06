@@ -1,6 +1,5 @@
 <?php 
-include("template.php");
-include("library/database.php");
+require_once("template.php");
 ?>
 
 <div class="col-md-8 border m-auto">

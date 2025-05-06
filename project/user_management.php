@@ -1,6 +1,5 @@
 <?php 
-include("template.php");
-require("library/database.php");
+require_once("template.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
@@ -86,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="first_name" class="form-label">First Name</label>
+                            <label for="first_name" class="form-label" >First Name</label>
                             <input type="text" id="first_name" name="first_name" class="form-control" required>
                             <div class="invalid-feedback">Please provide a first name.</div>
                         </div>
