@@ -1,6 +1,6 @@
 <?php
-include_once("library/database.php");
-include_once("library/loging.php");
+include_once("database.php");
+include_once("loging.php");
 
 $incident_type_filter = '';
 $severity_filter = '';

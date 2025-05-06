@@ -1,7 +1,6 @@
 <?php
 include_once("template.php");
 include_once('library/database.php');
-include_once('filter_incidents.php');
 
 if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
@@ -213,6 +212,29 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 		
 	</form>
 </div>
+
+						<?php
+		$incident_query = "
+		SELECT i.incident_ID, i.incident_type_ID, i.severity_ID, i.description, i.created, s.status
+		FROM incident i
+		LEFT JOIN incident_status ist ON i.incident_ID = ist.incident_ID
+		LEFT JOIN status s ON ist.status_ID = s.status_ID
+			WHERE ist.timestamp = (
+			SELECT MAX(timestamp)
+			FROM incident_status
+			WHERE incident_ID = i.incident_ID
+		)
+	";
+		$incident_result = $mysqli->query($incident_query);
+		if ($incident_result && $incident_result->num_rows > 0) {
+
+			$incidents = [];
+			while ($row = $incident_result->fetch_assoc()) {
+        
+			$incidents[] = $row;
+			}
+		}
+		?>
 						<?php if (!empty($incidents)): ?>
     <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
     <table class="table table-striped table-bordered align-middle" id="incident_table">
@@ -227,29 +249,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
             </tr>
         </thead>
         <tbody>
-		<?php
-
-		$incident_query = "
-		SELECT i.incident_ID, i.incident_type_ID, i.severity_ID, i.description, i.created, s.status
-		FROM incident i
-		LEFT JOIN incident_status ist ON i.incident_ID = ist.incident_ID
-		LEFT JOIN status s ON ist.status_ID = s.status_ID
-			WHERE ist.timestamp = (
-			SELECT MAX(timestamp)
-			FROM incident_status
-			WHERE incident_ID = i.incident_ID
-		)
-	";
-
-		$incident_result = $mysqli->query($incident_query);
-		if ($incident_result && $incident_result->num_rows > 0) {
-			$incidents = [];
-			while ($row = $incident_result->fetch_assoc()) {
-        
-			$incidents[] = $row;
-			}
-		}
-		?>
+		
 		
 		
             <?php foreach ($incidents as $incident): ?>
@@ -329,7 +329,7 @@ formData.append("incident_type", incident_filter.value);
 formData.append("severity", severity_filter.value);
 formData.append("filter", "yes");
 
-fetch("/project/test.php",{
+fetch("/project/library/filter_incidents.php",{
 method: 'POST',
 body: formData
 })
