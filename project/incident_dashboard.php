@@ -19,23 +19,40 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
     
     if ($stmt = $mysqli->prepare($query)) {
-       
         $stmt->bind_param("sss", $incident_type, $severity, $description);
 
         
         if ($stmt->execute()) {
             $incident_id = $mysqli->insert_id;
 			
+			$status_query = "SELECT status_ID FROM status WHERE status = 'Pending'";
+            $status_result = $mysqli->query($status_query);
+            $status_row = $status_result->fetch_assoc();
+            $status_ID = $status_row['status_ID'];
+			
+			
+			$status_query = "
+				INSERT INTO incident_status (incident_ID, user_ID, timestamp, status_ID)
+				VALUES (?,?, NOW(), ?)
+				";
+			
+			
 			$user_ID = $_SESSION['user_ID'];
-			$query = "
-				INSERT INTO incident_status (status_ID, incident_ID, user_ID) 
-				VALUES (
-					(SELECT status FROM status WHERE status_ID = ?),
-					?,
-					?
-				)";
+			
+			if ($status_stmt = $mysqli->prepare($status_query)) {
+                $status_stmt->bind_param("iii", $incident_id, $user_ID, $status_ID);
 				
-			$stmt->bind_param("sss", $status_ID, $incident_ID, $user_ID);
+				 if ($status_stmt->execute()) {
+                  
+      
+
+                    
+                } else {
+                    die("Error: Could not insert incident status: " . $status_stmt->error);
+                }
+            }
+				
+			
             
             if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
                 foreach ($_POST['affected_assets'] as $asset_value) {
@@ -213,6 +230,31 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
             </tr>
         </thead>
         <tbody>
+		<?php
+
+		$incident_query = "
+		SELECT i.incident_ID, i.incident_type_ID, i.severity_ID, i.description, i.created, s.status
+		FROM incident i
+		LEFT JOIN incident_status ist ON i.incident_ID = ist.incident_ID
+		LEFT JOIN status s ON ist.status_ID = s.status_ID
+			WHERE ist.timestamp = (
+			SELECT MAX(timestamp)
+			FROM incident_status
+			WHERE incident_ID = i.incident_ID
+		)
+	";
+
+		$incident_result = $mysqli->query($incident_query);
+		if ($incident_result && $incident_result->num_rows > 0) {
+			$incidents = [];
+			while ($row = $incident_result->fetch_assoc()) {
+        
+			$incidents[] = $row;
+			}
+		}
+		?>
+		
+		
             <?php foreach ($incidents as $incident): ?>
                 <?php
                     $incident_type_id = (int)$incident['incident_type_ID'];
@@ -223,13 +265,15 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
                     $incident_type = $type_result->fetch_assoc()['incident_type'] ?? 'Unknown';
                     $severity = $severity_result->fetch_assoc()['severity'] ?? 'Unknown';
+					
+					$status = $incident['status'] ?? 'No Status';
                 ?>
                 <tr>
                     <td><?= htmlspecialchars($incident['incident_ID']) ?></td>
                     <td><?= htmlspecialchars($incident['description']) ?></td>
                     <td><?= htmlspecialchars($incident_type) ?></td>
                     <td><?= htmlspecialchars($severity) ?></td>
-					<td>Status</td>
+					<td><?= htmlspecialchars($status) ?></td>
                     <td>
 						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Edit
