@@ -10,3 +10,27 @@ LEFT JOIN page p ON vt.page_ID = p.page_ID
 LEFT JOIN browser b ON vt.browser_ID = b.browser_ID
 LEFT JOIN logged_user lu ON vt.visit_ID = lu.visit_ID
 LEFT JOIN user u ON lu.user_ID=u.user_ID
+
+
+
+CREATE VIEW page_views AS
+SELECT page AS "Page", count(vt.page_ID) AS "Visits"
+FROM visit_tracking vt
+JOIN page p ON vt.page_ID = p.page_ID
+GROUP BY vt.page_ID
+
+CREATE VIEW ip_visits AS
+SELECT vt.ip AS "IP", count(vt.ip) AS "Visits"
+FROM visit_tracking vt
+GROUP BY vt.ip
+ORDER BY Visits DESC
+
+CREATE VIEW incident_report AS
+SELECT i.incident_ID,
+	i_t.incident_type,
+    s.severity,
+    i.description
+FROM incident i
+JOIN incident_type i_t ON i.incident_type_ID = i_t.incident_type_ID
+JOIN severity s ON i.severity_ID = s.severity_ID
+

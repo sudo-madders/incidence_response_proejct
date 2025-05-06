@@ -1,7 +1,6 @@
 <?php
-include("template.php");
-include('library/database.php');
-include('filter_incidents.php');
+include_once("template.php");
+include_once('library/database.php');
 
 if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
@@ -19,23 +18,40 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
     
     if ($stmt = $mysqli->prepare($query)) {
-       
         $stmt->bind_param("sss", $incident_type, $severity, $description);
 
         
         if ($stmt->execute()) {
             $incident_id = $mysqli->insert_id;
 			
+			$status_query = "SELECT status_ID FROM status WHERE status = 'Pending'";
+            $status_result = $mysqli->query($status_query);
+            $status_row = $status_result->fetch_assoc();
+            $status_ID = $status_row['status_ID'];
+			
+			
+			$status_query = "
+				INSERT INTO incident_status (incident_ID, user_ID, timestamp, status_ID)
+				VALUES (?,?, NOW(), ?)
+				";
+			
+			
 			$user_ID = $_SESSION['user_ID'];
-			$query = "
-				INSERT INTO incident_status (status_ID, incident_ID, user_ID) 
-				VALUES (
-					(SELECT status FROM status WHERE status_ID = ?),
-					?,
-					?
-				)";
+			
+			if ($status_stmt = $mysqli->prepare($status_query)) {
+                $status_stmt->bind_param("iii", $incident_id, $user_ID, $status_ID);
 				
-			$stmt->bind_param("sss", $status_ID, $incident_ID, $user_ID);
+				 if ($status_stmt->execute()) {
+                  
+      
+
+                    
+                } else {
+                    die("Error: Could not insert incident status: " . $status_stmt->error);
+                }
+            }
+				
+			
             
             if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
                 foreach ($_POST['affected_assets'] as $asset_value) {
@@ -167,8 +183,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
 		<div class="col-md-2">
 			<label for="incident_type" class="form-label">Incident Type</label>
-			<select class="form-select" name="incident_type">
-				<option selected disabled>Choose incident type</option>
+			<select class="form-select" name="incident_type" id="incident_type">
+				<option selected>All</option>
 				<?php
 				$query = "SELECT incident_type FROM incident_type";
 				$result = $mysqli->query($query);
@@ -184,8 +200,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
 		<div class="col-md-2">
 			<label for="severity" class="form-label">Severity</label>
-			<select class="form-select" name="severity">
-				<option selected disabled>Choose severity</option>
+			<select class="form-select" name="severity" id="severity">
+				<option selected>All</option>
 				<option value="Low">Low</option>
 				<option value="Medium">Medium</option>
 				<option value="High">High</option>
@@ -193,18 +209,35 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			</select>
 		</div>
 
-		<div class="col-auto">
-			<button type="submit" class="btn btn-primary">Filter</button>
-			<a href="incident_dashboard.php" class="btn btn-primary">Clear Filter</a>
-		</div>
+		
 	</form>
 </div>
-							
-						
-						
+
+						<?php
+		$incident_query = "
+		SELECT i.incident_ID, i.incident_type_ID, i.severity_ID, i.description, i.created, s.status
+		FROM incident i
+		LEFT JOIN incident_status ist ON i.incident_ID = ist.incident_ID
+		LEFT JOIN status s ON ist.status_ID = s.status_ID
+			WHERE ist.timestamp = (
+			SELECT MAX(timestamp)
+			FROM incident_status
+			WHERE incident_ID = i.incident_ID
+		)
+	";
+		$incident_result = $mysqli->query($incident_query);
+		if ($incident_result && $incident_result->num_rows > 0) {
+
+			$incidents = [];
+			while ($row = $incident_result->fetch_assoc()) {
+        
+			$incidents[] = $row;
+			}
+		}
+		?>
 						<?php if (!empty($incidents)): ?>
-    <div class="table-responsive">
-    <table class="table table-striped table-bordered align-middle">
+    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+    <table class="table table-striped table-bordered align-middle" id="incident_table">
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
@@ -216,6 +249,9 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
             </tr>
         </thead>
         <tbody>
+		
+		
+		
             <?php foreach ($incidents as $incident): ?>
                 <?php
                     $incident_type_id = (int)$incident['incident_type_ID'];
@@ -226,13 +262,15 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
                     $incident_type = $type_result->fetch_assoc()['incident_type'] ?? 'Unknown';
                     $severity = $severity_result->fetch_assoc()['severity'] ?? 'Unknown';
+					
+					$status = $incident['status'] ?? 'No Status';
                 ?>
                 <tr>
                     <td><?= htmlspecialchars($incident['incident_ID']) ?></td>
                     <td><?= htmlspecialchars($incident['description']) ?></td>
                     <td><?= htmlspecialchars($incident_type) ?></td>
                     <td><?= htmlspecialchars($severity) ?></td>
-					<td>Status</td>
+					<td><?= htmlspecialchars($status) ?></td>
                     <td>
 						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Edit
@@ -247,6 +285,17 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
 								
+								<form method="post" enctype="multipart/form-data">
+								<label for="comment">Comment:</label>
+								<textarea name="comment" id="comment"><?= htmlspecialchars($incident['comment'] ?? '') ?></textarea><br>
+								<br>
+								<label for="evidence_file">Evidence (upload a file):</label>
+								<input type="file" name="evidence_file" id="evidence_file"><br>
+								<br>
+								<button type="submit">Update Incident</button>
+								</form>
+								
+								
 							</div>
 						</div>
                     </td>
@@ -255,18 +304,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
         </tbody>
     </table>
 </div>
-<script>
-document.addEventListener('click', function(event) {
-  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
-    const targetId = event.target.getAttribute('data-bs-target');
-    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
-    if (offcanvasElement) {
-      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
-      offcanvas.show();
-    }
-  }
-});
-</script>
+
 	
 	
 <?php else: ?>
@@ -277,6 +315,86 @@ document.addEventListener('click', function(event) {
     <?php endif; ?>
 <?php endif; ?>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+var incident_filter = document.getElementById("incident_type");
+var severity_filter = document.getElementById("severity");
+var myTable = document.getElementById("incident_table");
+var tableRows = myTable.getElementsByTagName("tr");
+
+function filterTable() {
+console.log("Update");
+var formData = new FormData();
+formData.append("incident_type", incident_filter.value);
+formData.append("severity", severity_filter.value);
+formData.append("filter", "yes");
+
+fetch("/project/library/filter_incidents.php",{
+method: 'POST',
+body: formData
+})
+.then(response => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`); // Use backticks here
+  }
+  return response.json();
+})
+.then(data => {
+ console.log(data);
+ updateTable(data);
+})
+.catch(error => {
+  console.error(`There was an error sending the request or processing the response: ${error.message}`);
+});
+}
+
+function updateTable(data) {
+  // Clear the existing table rows (except the header)
+  var tbody = myTable.getElementsByTagName('tbody')[0];
+  while (tbody.firstChild) {
+    tbody.removeChild(tbody.firstChild);
+  }
+
+  // Populate the table with the new data
+  data.forEach(row => {
+    var newRow = tbody.insertRow();
+
+    var cell1 = newRow.insertCell();
+    cell1.textContent = row.incident_ID;
+
+    var cell2 = newRow.insertCell();
+    cell2.textContent = row.description;
+
+    var cell3 = newRow.insertCell();
+    cell3.textContent = row.incident_type;
+
+    var cell4 = newRow.insertCell();
+    cell4.textContent = row.severity;
+	
+	var cell5 = newRow.insertCell();
+    cell5.textContent = "Status";
+	
+	var cell6 = newRow.insertCell();
+    cell6.innerHTML = row.edit;
+  });
+}
+ 
+  // Add event listeners to both select elements
+ incident_filter.addEventListener('change', filterTable);
+ severity_filter.addEventListener('change', filterTable);
+
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+});
+</script>
 <?php
 echo $footer;
 ?>

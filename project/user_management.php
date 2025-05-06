@@ -1,17 +1,11 @@
-
 <?php 
-include("template.php");
+require_once("template.php");
 
-$mysqli = new mysqli("localhost", "isacli24", "FV0t2Wgb0b", "isacli24");
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($_SESSION["role"] != "administrator") {
+	header('HTTP/1.0 401 Unauthorized');
+    echo 'You must be administrator in to access this page.';
+    exit;
 }
-?>
-
-<?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
@@ -97,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="first_name" class="form-label">First Name</label>
+                            <label for="first_name" class="form-label" >First Name</label>
                             <input type="text" id="first_name" name="first_name" class="form-control" required>
                             <div class="invalid-feedback">Please provide a first name.</div>
                         </div>
@@ -150,8 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
             </div>
         </div>
     </div>
-</div>
-
 
     <div class="row mb-3 border">
         <!-- Users Table -->
@@ -184,7 +176,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 						<td><?= htmlspecialchars($row['email']) ?></td>
 						<td><?= htmlspecialchars($row['role']) ?></td>
 						<td>
-							<a href="edit_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-primary">Edit</a>
+							<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
+								Edit
+							</button>
+						
+							<!-- Offcanvas, More selection -->
+							<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="user_<?= htmlspecialchars($row['user_id']) ?>" aria-labelledby="addNewIncidentLabel">
+								<div class="offcanvas-header">
+									<h5 class="offcanvas-title" id="addNewIncidentLabel">user_<?= htmlspecialchars($row['user_id']) ?></h5>
+									<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+								</div>
+								<div class="offcanvas-body ">
+                                <?php
+				$user_id = $row['user_id']; // Directly use current user ID
+				if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user_id']) && $_POST['edit_user_id'] == $user_id) {
+				    $new_role = $_POST['role'];
+				    $stmt = $mysqli->prepare("SELECT user_role_ID FROM user_role WHERE role = ? LIMIT 1");
+				    $stmt->bind_param("s", $new_role);
+				    $stmt->execute();
+				    $res = $stmt->get_result();
+				    $role = $res->fetch_assoc();
+				    $role_id = $role['user_role_ID'];
+				
+				    $update = $mysqli->prepare("UPDATE user SET user_role_ID = ? WHERE user_id = ?");
+				    $update->bind_param("ii", $role_id, $user_id);
+				    $update->execute();
+				
+				    header("Location: user_management.php?success=edit");
+				    exit();
+				}
+				
+				$user = $mysqli->query("SELECT * FROM user WHERE user_id = $user_id")->fetch_assoc();
+				?>
+
+
+                                $user = $mysqli->query("SELECT * FROM user WHERE user_id = $id")->fetch_assoc();
+                                ?>
+
+                                <h3>Edit Role for <?= htmlspecialchars($user['username']) ?></h3>
+                                <form method="post">
+                                    <label>New Role:</label>
+                                    <select name="role" class="form-select" required>
+                                        <option value="Administrator">Administrator</option>
+                                        <option value="Responder">Responder</option>
+                                        <option value="Reporter">Reporter</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary mt-2">Update Role</button>
+                                </form>
+									<!-- Här börjar själva panelen -->
+									
+								</div>
+							</div>
+						<!--	<a href="edit_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-primary">Edit</a>   -->
 							<a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
 						</td>
 					</tr>
@@ -194,6 +237,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 		</div>
     </div>
 </div>
+</div>
+<script>
+document.addEventListener('click', function(event) {
+  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+    const targetId = event.target.getAttribute('data-bs-target');
+    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+    if (offcanvasElement) {
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+      offcanvas.show();
+    }
+  }
+});
+</script>
 
 <?php 
 echo $footer;
