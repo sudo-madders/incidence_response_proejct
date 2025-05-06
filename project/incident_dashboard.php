@@ -285,8 +285,15 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
 								
-								<label for="comment" class="form-label">Add a comment</label>
-									<textarea  class="form-control" id="comment" name="comment" rows="3" required></textarea>
+								<form method="post" enctype="multipart/form-data">
+								<label for="comment">Comment:</label>
+								<textarea name="comment" id="comment"><?= htmlspecialchars($incident['comment'] ?? '') ?></textarea><br>
+								<br>
+								<label for="evidence_file">Evidence (upload a file):</label>
+								<input type="file" name="evidence_file" id="evidence_file"><br>
+								<br>
+								<button type="submit">Update Incident</button>
+								</form>
 								
 								
 							</div>
