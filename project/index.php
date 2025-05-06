@@ -1,11 +1,25 @@
 <?php
 session_name('project');
 session_start();
-include('library/database.php');
-include('library/tracking.php');
+include_once('library/tracking.php');
 if (isset($_POST['username']) and isset($_POST['password'])) {
 	$name = $mysqli->real_escape_string($_POST['username']);
 	$pwd = $mysqli->real_escape_string($_POST['password']);
+	
+	$query = "SELECT password FROM user WHERE username ='$name'";
+	
+	$result = $mysqli->query($query);
+	
+	if ($result->num_rows > 0) {
+		$row = $result->fetch_object();
+		if (password_verify($pwd, $row['password'])) {
+			$_SESSION["username"] = $row->username;
+			$_SESSION["user_ID"] = $row->user_ID;
+			
+			header("Location:incident_dashboard.php");
+		}
+	}
+	
 	$query = <<<END
 	SELECT username, password, user_ID FROM user
 	WHERE username = '{$name}' AND password = '{$pwd}';
