@@ -209,10 +209,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			</select>
 		</div>
 
-		<div class="col-auto">
-			<button type="submit" class="btn btn-primary">Filter</button>
-			<a href="incident_dashboard.php" class="btn btn-primary">Clear Filter</a>
-		</div>
+		
 	</form>
 </div>
 
@@ -287,6 +284,17 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							</div>
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
+								
+								<form method="post" enctype="multipart/form-data">
+								<label for="comment">Comment:</label>
+								<textarea name="comment" id="comment"><?= htmlspecialchars($incident['comment'] ?? '') ?></textarea><br>
+								<br>
+								<label for="evidence_file">Evidence (upload a file):</label>
+								<input type="file" name="evidence_file" id="evidence_file"><br>
+								<br>
+								<button type="submit">Update Incident</button>
+								</form>
+								
 								
 							</div>
 						</div>
