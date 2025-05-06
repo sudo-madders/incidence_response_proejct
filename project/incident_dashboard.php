@@ -1,7 +1,7 @@
 <?php
-include("template.php");
-include('library/database.php');
-include('filter_incidents.php');
+include_once("template.php");
+include_once('library/database.php');
+include_once('filter_incidents.php');
 
 if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
@@ -356,13 +356,13 @@ function updateTable(data) {
     cell1.textContent = row.incident_ID;
 
     var cell2 = newRow.insertCell();
-    cell2.textContent = row.incident_type;
+    cell2.textContent = row.description;
 
     var cell3 = newRow.insertCell();
-    cell3.textContent = row.severity;
+    cell3.textContent = row.incident_type;
 
     var cell4 = newRow.insertCell();
-    cell4.textContent = row.description;
+    cell4.textContent = row.severity;
 	
 	var cell5 = newRow.insertCell();
     cell5.textContent = "Status";

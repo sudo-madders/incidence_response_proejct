@@ -1,7 +1,12 @@
-<?php 
-require_once("library/database.php");
-require_once("library/loging.php");
-require_once 'library/BrowserDetection.php'; // Source: https://github.com/foroco/php-browser-detection
+<?php
+/*
+* This file contains code that will insert each page visit to the database.
+* It uses a pre-built library that will extract the browser that makes the
+* request.
+*/
+require_once("database.php");
+require_once("loging.php");
+require_once("BrowserDetection.php"); // Source: https://github.com/foroco/php-browser-detection
 
 $browserDetection = new foroco\BrowserDetection();
 $userAgent = $_SERVER['HTTP_USER_AGENT'];
@@ -9,7 +14,7 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 // Gets browser information
 $browserInfo = $browserDetection->getBrowser($userAgent);
 $browser = $browserInfo['browser_name'];
-
+logError($browser);
 // Gets the IP-address
 $ip = $_SERVER['REMOTE_ADDR'];
 
@@ -66,16 +71,11 @@ if ($mysqli->query($query)) {
 		if ($mysqli->query($query)) {
 		} else {
 			logError($mysqli->error);
-			echo 'Error' . $mysqli->error;
 		}
 	} else {
 		logError("User session isnt set");
-		logError("User session isnt set");
 	}
 } else {
-	echo 'Error: ' . $mysqli->error;
 	logError($mysqli->error);
 }
-
-
 ?>
