@@ -181,7 +181,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 if ($_SESSION['role'] == "reporter") {
 	$user_ID = $_SESSION['user_ID'];
 	$incident_query = "SELECT * FROM all_incidents WHERE user_ID = '{$user_ID}'";
-	logError($incident_query);
 } else {
 	$incident_query = "SELECT * FROM all_incidents";
 }
