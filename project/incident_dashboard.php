@@ -7,7 +7,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $severity = $mysqli->real_escape_string($_POST['severity']);
     $description = $mysqli->real_escape_string($_POST['description']);
 
-    
     $query = "
         INSERT INTO incident (incident_type_ID, severity_ID, description) 
         VALUES (
@@ -29,30 +28,21 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
             $status_row = $status_result->fetch_assoc();
             $status_ID = $status_row['status_ID'];
 			
-			
 			$status_query = "
 				INSERT INTO incident_status (incident_ID, user_ID, timestamp, status_ID)
 				VALUES (?,?, NOW(), ?)
 				";
-			
-			
 			$user_ID = $_SESSION['user_ID'];
 			
 			if ($status_stmt = $mysqli->prepare($status_query)) {
                 $status_stmt->bind_param("iii", $incident_id, $user_ID, $status_ID);
 				
 				 if ($status_stmt->execute()) {
-                  
-      
-
                     
                 } else {
                     die("Error: Could not insert incident status: " . $status_stmt->error);
                 }
             }
-				
-			
-            
             if (!empty($_POST['affected_assets']) && is_array($_POST['affected_assets'])) {
                 foreach ($_POST['affected_assets'] as $asset_value) {
                     $asset_clean = $mysqli->real_escape_string($asset_value);
@@ -66,8 +56,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 
                     if (array_key_exists($asset_clean, $asset_ids)) {
                         $asset_id = $asset_ids[$asset_clean];
-
-                        
                         $insert_asset = "INSERT INTO affected_assets (asset_ID, incident_ID) VALUES (?, ?)";
                         if ($asset_stmt = $mysqli->prepare($insert_asset)) {
                             $asset_stmt->bind_param("ii", $asset_id, $incident_id);
@@ -78,15 +66,11 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                     }
                 }
             }
-
-            
             header('Location: incident_dashboard.php');
             exit;
         } else {
             die("Error: Could not insert incident: " . $stmt->error);
         }
-
-        
         $stmt->close();
     } else {
         die("Error: Could not prepare statement: " . $mysqli->error);
@@ -112,7 +96,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 									<div class="row">
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
-											
 											<select class="form-select" name="incident_type" required>
 												<option selected disabled>Choose incident type</option>
 												<?php
@@ -126,12 +109,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 												}
 												?>
 											</select>
-											
-											
 											<br>
 											<p>Affected assets</p>
-											
-											
 											<input type="checkbox" name="affected_assets[]" value="inventory" id="affected_inventory">
 											<label for="affected_inventory">Inventory</label>
 											<br>
@@ -146,15 +125,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 											<br>
 											<input type="checkbox" name="affected_assets[]" value="other" id="affected_other">
 											<label for="affected_other">Other</label>
-											
-											
-											
-											
 											<br>
-											
-											
 										</div>
-										
 										<div class="col-md-6">
 											<label for="severity" class="form-label">Severity</label>
 											<select class="form-select" name="severity" required>
@@ -208,35 +180,28 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 				<option value="Critical">Critical</option>
 			</select>
 		</div>
-
-		
 	</form>
 </div>
 
-						<?php
-		$incident_query = "
-		SELECT i.incident_ID, i.incident_type_ID, i.severity_ID, i.description, i.created, s.status
-		FROM incident i
-		LEFT JOIN incident_status ist ON i.incident_ID = ist.incident_ID
-		LEFT JOIN status s ON ist.status_ID = s.status_ID
-			WHERE ist.timestamp = (
-			SELECT MAX(timestamp)
-			FROM incident_status
-			WHERE incident_ID = i.incident_ID
-		)
-	";
-		$incident_result = $mysqli->query($incident_query);
-		if ($incident_result && $incident_result->num_rows > 0) {
+<?php
+if ($_SESSION['role'] == "reporter") {
+	$user_ID = $_SESSION['user_ID'];
+	$incident_query = "SELECT * FROM all_incidents WHERE user_ID = '{$user_ID}'";
+	logError($incident_query);
+} else {
+	$incident_query = "SELECT * FROM all_incidents";
+}
+$incident_result = $mysqli->query($incident_query);
+if ($incident_result && $incident_result->num_rows > 0) {
+	$incidents = [];
+	while ($row = $incident_result->fetch_assoc()) {
+		$incidents[] = $row;
+	}
+}
 
-			$incidents = [];
-			while ($row = $incident_result->fetch_assoc()) {
-        
-			$incidents[] = $row;
-			}
-		}
-		?>
-						<?php if (!empty($incidents)): ?>
-    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+?>
+<?php if (!empty($incidents)): ?>
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
     <table class="table table-striped table-bordered align-middle" id="incident_table">
         <thead class="table-dark">
             <tr>
@@ -249,28 +214,13 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
             </tr>
         </thead>
         <tbody>
-		
-		
-		
             <?php foreach ($incidents as $incident): ?>
-                <?php
-                    $incident_type_id = (int)$incident['incident_type_ID'];
-                    $severity_id = (int)$incident['severity_ID'];
-
-                    $type_result = $mysqli->query("SELECT incident_type FROM incident_type WHERE incident_type_ID = $incident_type_id");
-                    $severity_result = $mysqli->query("SELECT severity FROM severity WHERE severity_ID = $severity_id");
-
-                    $incident_type = $type_result->fetch_assoc()['incident_type'] ?? 'Unknown';
-                    $severity = $severity_result->fetch_assoc()['severity'] ?? 'Unknown';
-					
-					$status = $incident['status'] ?? 'No Status';
-                ?>
                 <tr>
                     <td><?= htmlspecialchars($incident['incident_ID']) ?></td>
                     <td><?= htmlspecialchars($incident['description']) ?></td>
-                    <td><?= htmlspecialchars($incident_type) ?></td>
-                    <td><?= htmlspecialchars($severity) ?></td>
-					<td><?= htmlspecialchars($status) ?></td>
+                    <td><?= htmlspecialchars($incident['incident_type']) ?></td>
+                    <td><?= htmlspecialchars($incident['severity']) ?></td>
+					<td><?= htmlspecialchars($incident['status']) ?></td>
                     <td>
 						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Edit
@@ -294,8 +244,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 								<br>
 								<button type="submit">Update Incident</button>
 								</form>
-								
-								
 							</div>
 						</div>
                     </td>
@@ -305,8 +253,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     </table>
 </div>
 
-	
-	
 <?php else: ?>
     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])): ?>
         <p class="text-muted">No incidents matched your filter.</p>
@@ -335,7 +281,7 @@ body: formData
 })
 .then(response => {
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`); // Use backticks here
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
   return response.json();
 })
