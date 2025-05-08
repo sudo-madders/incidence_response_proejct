@@ -42,10 +42,10 @@ $currentPage = explode("/", $currentPage)[2];
 				
 				<?php if (isset($_SESSION["user_ID"])): ?>
 				<div class="col-auto">
-					<h5>Current user: <?= $_SESSION['username'] ?></h5>
+					<p>Current user: <?= $_SESSION['username'] ?></p>
 				</div>
 				<div class="col-auto">
-					<h5>Role: <?= $_SESSION['role'] ?></h5>
+					<p>Role: <?= $_SESSION['role'] ?></p>
 				</div>
 				<div class="col-auto">
 					<a href="logout.php" class="btn btn-secondary" role="button">Log out</a>
