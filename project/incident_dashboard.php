@@ -149,38 +149,32 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 					</div>
 					
 					<div class="row mb-3">
-						
-						<form method="post" action="incident_dashboard.php" class="d-flex flex-wrap align-items-end gap-3">
-		<input type="hidden" name="filter" value="1">
-
-		<div class="col-md-2">
-			<label for="incident_type" class="form-label">Incident Type</label>
-			<select class="form-select" name="incident_type" id="incident_type">
-				<option selected>All</option>
-				<?php
-				$query = "SELECT incident_type FROM incident_type";
-				$result = $mysqli->query($query);
-				if ($result && $result->num_rows > 0) {
-					while ($row = $result->fetch_assoc()) {
-						$incident_type = $row['incident_type'];
-						echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
-					}
-				}
-				?>
-			</select>
-		</div>
-
-		<div class="col-md-2">
-			<label for="severity" class="form-label">Severity</label>
-			<select class="form-select" name="severity" id="severity">
-				<option selected>All</option>
-				<option value="Low">Low</option>
-				<option value="Medium">Medium</option>
-				<option value="High">High</option>
-				<option value="Critical">Critical</option>
-			</select>
-		</div>
-	</form>
+						<div class="col-md-2">
+							<label for="incident_type" class="form-label">Incident Type</label>
+							<select class="form-select" name="incident_type" id="incident_type">
+								<option selected>All</option>
+								<?php
+								$query = "SELECT incident_type FROM incident_type";
+								$result = $mysqli->query($query);
+								if ($result && $result->num_rows > 0) {
+									while ($row = $result->fetch_assoc()) {
+										$incident_type = $row['incident_type'];
+										echo '<option value="' . htmlspecialchars($incident_type) . '">' . htmlspecialchars($incident_type) . '</option>';
+									}
+								}
+								?>
+							</select>
+						</div>
+						<div class="col-md-2">
+							<label for="severity" class="form-label">Severity</label>
+							<select class="form-select" name="severity" id="severity">
+								<option selected>All</option>
+								<option value="Low">Low</option>
+								<option value="Medium">Medium</option>
+								<option value="High">High</option>
+								<option value="Critical">Critical</option>
+							</select>
+						</div>
 </div>
 
 <?php
@@ -318,7 +312,7 @@ function updateTable(data) {
     cell4.textContent = row.severity;
 	
 	var cell5 = newRow.insertCell();
-    cell5.textContent = "Status";
+    cell5.textContent = row.status;
 	
 	var cell6 = newRow.insertCell();
     cell6.innerHTML = row.edit;
