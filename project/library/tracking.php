@@ -14,7 +14,7 @@ $userAgent = $_SERVER['HTTP_USER_AGENT'];
 // Gets browser information
 $browserInfo = $browserDetection->getBrowser($userAgent);
 $browser = $browserInfo['browser_name'];
-logError($browser);
+
 // Gets the IP-address
 $ip = $_SERVER['REMOTE_ADDR'];
 

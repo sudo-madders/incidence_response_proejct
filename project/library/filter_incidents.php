@@ -1,4 +1,7 @@
 <?php
+session_name('project');
+session_start();
+
 include_once("database.php");
 include_once("loging.php");
 
@@ -10,32 +13,41 @@ $incidents = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
     $incident_type_filter = isset($_POST['incident_type']) ? $mysqli->real_escape_string($_POST['incident_type']) : '';
     $severity_filter = isset($_POST['severity']) ? $mysqli->real_escape_string($_POST['severity']) : '';
-	
-	$query = "SELECT * FROM incident_report";
 	$whereAdded = False;
+	if ($_SESSION['role'] == "reporter") {
+		$user_ID = $_SESSION['user_ID'];
+		$query = "SELECT * FROM all_incidents WHERE user_ID = '{$user_ID}'";
+		$whereAdded = True;
+	} else {
+		$query = "SELECT * FROM all_incidents";
+	}
+	
 	// Apply filters to query
-	if ($severity_filter != "All") {
+	if ($severity_filter != "All" && $whereAdded) {
+		$query .= " AND severity = '$severity_filter'";
+	} elseif ($severity_filter != "All") {
 		$query .= " WHERE severity = '$severity_filter'";
 		$whereAdded = True;
 	}
-	
-	if ($incident_type_filter != "All") {
-		if($whereAdded) {
+	// Apply filters to query
+	if ($incident_type_filter != "All" && $whereAdded) {
+		$query .= " AND incident_type = '$incident_type_filter'";
+	} elseif ($incident_type_filter != "All") {
+		if ($whereAdded) {
 			$query .= " AND incident_type = '$incident_type_filter'";
-		} else {
-			$query .= " WHERE incident_type = '$incident_type_filter'";
 		}
+		$query .= " WHERE incident_type = '$incident_type_filter'";
 	}
     // Run the query for filtered incidents
     $result = $mysqli->query($query);
 } else {
     // No filter, load all incidents
-    $query = "SELECT * FROM incident_report";
-
+    $query = "SELECT * FROM all_incidents";
+	
     // Run the query for all incidents
     $result = $mysqli->query($query);
 }
-
+logError($query);
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
 		$edit = <<<END
@@ -59,6 +71,5 @@ END;
         $incidents[] = $row;
     }
 }
-
 echo json_encode($incidents);
 ?>
