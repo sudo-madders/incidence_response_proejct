@@ -34,3 +34,11 @@ FROM incident i
 JOIN incident_type i_t ON i.incident_type_ID = i_t.incident_type_ID
 JOIN severity s ON i.severity_ID = s.severity_ID
 
+
+CREATE VIEW all_incidents AS
+SELECT i.incident_ID, it.incident_type, sv.severity, i.description, i.created, s.status, ist.user_ID
+FROM incident i
+JOIN incident_type it ON i.incident_type_ID = it.incident_type_ID
+JOIN severity sv ON i.severity_ID = sv.severity_ID
+JOIN incident_status ist ON i.incident_ID = ist.incident_ID
+JOIN status s ON ist.status_ID = s.status_ID
