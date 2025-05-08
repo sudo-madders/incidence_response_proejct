@@ -2,6 +2,13 @@
 session_name('project');
 session_start();
 
+// Check if the user is logged in (session variable is set)
+if (!isset($_SESSION['user_ID'])) {
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'You must be logged in to access this page.';
+    exit;
+}
+
 $currentPage = $_SERVER['PHP_SELF'];
 $currentPage = explode("/", $currentPage)[2];
 ?>
@@ -23,7 +30,7 @@ $currentPage = explode("/", $currentPage)[2];
 		<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 		<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 		<div class="container-fluid border">
-			<div class="row align-items-center">
+			<div class="row align-items-center justify-content-end">
 				<!-- Hamburger Button (visible only on small screens) -->
 				
 				<button class="col-auto d-md-none btn btn-lg" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -32,6 +39,19 @@ $currentPage = explode("/", $currentPage)[2];
 				<div class="col">
 					<h1>Incident response Portal</h1>
 				</div>
+				
+				<?php if (isset($_SESSION["user_ID"])): ?>
+				<div class="col-auto">
+					<h5>Current user: <?= $_SESSION['username'] ?></h5>
+				</div>
+				<div class="col-auto">
+					<h5>Role: <?= $_SESSION['role'] ?></h5>
+				</div>
+				<div class="col-auto">
+					<a href="logout.php" class="btn btn-secondary" role="button">Log out</a>
+				</div>
+				<?php endif; ?>
+				
 				<!-- Offcanvas meny-->
 				<div class="offcanvas offcanvas-start d-md-none border" id="sidebarMenu" data-bs-scroll="true" data-bs-backdrop="true">
 					<div class="offcanvas-header">
