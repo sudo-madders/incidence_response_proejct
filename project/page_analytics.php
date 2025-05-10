@@ -2,8 +2,8 @@
 require_once("template.php");
 ?>
 
-<div class="col-md-8 border m-auto">
-	<div class="row border border-primary my-3">
+<div class="col border m-auto bg-white">
+	<div class="row">
 		<table class=" table table-striped table-bordered table-hover" style="width:100%">
 			<thead class="table-dark">
 				<tr>

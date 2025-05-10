@@ -102,7 +102,7 @@ $currentPage = explode("/", $currentPage)[2];
 				</div>
 			</div>
 				
-				<div class="row gx-4 mt-3 vh-80 border border-danger">
+				<div class="row gx-4 mt-3 vh-80 border border-dark">
 					<!-- Sidebar navigation -->
 					<div class="col-auto border-end border-secondary d-none d-md-block bg-light">
 						<ul class="nav nav-pills flex-column gap-2 p-3">

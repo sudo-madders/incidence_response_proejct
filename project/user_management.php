@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 
 
 
-<div class="col">
+<div class="col bg-white">
 <?php if (isset($_GET['success'])): ?>
     <?php if ($_GET['success'] === 'add'): ?>
         <div class="alert alert-success text-center">User added successfully!</div>
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         <div class="alert alert-success text-center">User deleted successfully!</div>
     <?php endif; ?>
 <?php endif; ?>
-    <div class="row mb-3 border">
+    <div class="row mb-3">
         <button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>

@@ -46,8 +46,8 @@ include("template.php");
 }
     </script>
 
-<div class="col-md-8 border m-auto">
-	<div class="row border border-primary my-3 align-items-center">
+<div class="col m-auto bg-white">
+	<div class="row´ my-3 align-items-center">
     <!--Div that will hold the pie chart-->
     <div id="chart_div" class="m-auto" style="height: 600px; width: 600px;"></div>
 </div>

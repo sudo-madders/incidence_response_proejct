@@ -177,7 +177,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 ?>
 				<!-- Main content -->
 				<div class="col bg-white">
-					<div class="row mb-3 border">
+					<div class="row mb-3">
 					<?php 
 					if ($_SESSION['role'] == "reporter") {
 						$username = $_SESSION['username'];
@@ -187,7 +187,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 					}
 					?>
 					</div>
-					<div class="row mb-3 border">
+					<div class="row mb-3">
 						<button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
 							Add new incident
 						</button>
@@ -300,19 +300,33 @@ $incident_result = $mysqli->query($incident_query);
 if ($incident_result && $incident_result->num_rows > 0) {
 	$incidents = [];
 	while ($row = $incident_result->fetch_assoc()) {
-		$query = "SELECT i_status_ID, u.username, timestamp FROM incident_status i_s 
+		$query = "SELECT i_status_ID, u.username, timestamp, s.status FROM incident_status i_s 
 		JOIN user u ON u.user_ID = i_s.user_ID
+		JOIN status s ON i_s.status_ID = s.status_ID
 		WHERE incident_ID = " . $row['incident_ID'];
 		
 		$result = $mysqli->query($query);
 		$comments = [];
 		$evidence = [];
+		$events = [];
 		if ($result && $result->num_rows > 0) {
+			$first = True;
 			while ($i_status_ID_row = $result->fetch_assoc()) {
 				/*This section of the code get the comment from a certain incident_status_ID*/
-				$query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$comment_query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$comment_result = $mysqli->query($comment_query);
+				if ($first) {
+					$status_changed = [];
+					$status_changed['username'] = $i_status_ID_row['username'];
+					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
+					$status_changed['status'] = $i_status_ID_row['status'];
+					$status_changed['type'] = "Incident created";
+					$events[] = $status_changed;
+					$first = False;
+				}
+				$evidence_query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$evidence_result = $mysqli->query($evidence_query);
 				
-				$comment_result = $mysqli->query($query);
 				if ($comment_result && $comment_result->num_rows > 0) {
 					$comment = [];
 					$comment_text = $comment_result->fetch_assoc();
@@ -320,11 +334,9 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$comment['timestamp'] = $i_status_ID_row['timestamp'];
 					$comment['username'] = $i_status_ID_row['username'];
 					$comments[] = $comment;
-				}
-				/*This section of the code gets the evidence*/
-				$query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
-				$evidence_result = $mysqli->query($query);
-				if ($evidence_result && $evidence_result->num_rows > 0) {
+					$comment['type'] = "Comment -> {$comment['text']}";
+					$events[] = $comment;
+				} elseif ($evidence_result && $evidence_result->num_rows > 0) {
 					$evidence_data = [];
 					$evidence_result = $evidence_result->fetch_assoc();
 					$path_array = explode("/", $evidence_result['path']);
@@ -332,9 +344,19 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$evidence_data['timestamp'] = $i_status_ID_row['timestamp'];
 					$evidence_data['username'] = $i_status_ID_row['username'];
 					$evidence[] = $evidence_data;
+					$evidence_data['type'] = "Evidence -> {$evidence_data['path']}";
+					$events[] = $evidence_data;
+				} else {
+					$status_changed = [];
+					$status_changed['username'] = $i_status_ID_row['username'];
+					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
+					$status_changed['status'] = $i_status_ID_row['status'];
+					$status_changed['type'] = "Status change -> {$i_status_ID_row['status']}";
+					$events[] = $status_changed;
 				}
 			}
 		}
+		$row['events'] = $events;
 		$row['evidence'] = $evidence;
 		$row['comments'] = $comments;
 		$incidents[] = $row;
@@ -477,6 +499,43 @@ if ($incident_result && $incident_result->num_rows > 0) {
 								</div>
 							</div>
 						</div>
+						<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+							Show events
+						</button>
+						
+						<!-- Offcanvas, More selection -->
+						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
+							<div class="offcanvas-header">
+								<h5 class="offcanvas-title" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h5>
+								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+							</div>
+							<div class="offcanvas-body ">
+								<?php if (isset($incident['events']) && !empty($incident['events'])): ?>
+									<table class="table table-striped table-bordered">
+										<thead class="table-light">
+											<tr>
+												<th>Timestamp</th>
+												<th>User</th>
+												<th>Type</th>
+											</tr>
+										</thead>
+										<tbody>
+											<?php foreach ($incident['events'] as $events): ?>
+												<tr>
+													<td><?= htmlspecialchars($events['timestamp'] ?? '') ?></td>
+												
+													<td><?= htmlspecialchars($events['username'] ?? '') ?></td>
+												
+													<td><?= htmlspecialchars($events['type']  ?? '') ?></td>
+												</tr>
+											<?php endforeach; ?>
+										</tbody>¨
+									</table>
+								<?php else: ?>
+									<p>No events yet.</p>
+								<?php endif; ?>
+							</div>
+						</div>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -525,7 +584,7 @@ $(document).ready(function() {
         // Clear the existing table rows
         $tableBody.empty();
 
-        // Populate the table with the new data
+        // Remake the table with the new data
         $.each(data, function(index, row) {
             var $newRow = $('<tr>');
             
@@ -548,7 +607,7 @@ $(document).ready(function() {
         const incidentId = $(this).attr('id').replace('select_', '');
         const newStatus = $(this).val();
         
-        // Send data to server
+        // Send data to endpoint
         $.post('library/update_status.php', {
             incident_id: incidentId,
             new_status: newStatus
