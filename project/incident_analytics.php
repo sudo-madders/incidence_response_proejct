@@ -15,14 +15,14 @@ include("template.php");
       // instantiates the pie chart, passes in the data and
       // draws it.
       function drawChart() {
-  fetch('library/get_chart_data.php')
+	fetch('library/get_chart_data.php')
     .then(response => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     })
-    .then(responseJson => { // The API returns an object with a "data" property
+    .then(responseJson => { 
       const dataFromApi = responseJson.data;
       const dataTable = new google.visualization.DataTable();
 
@@ -31,7 +31,7 @@ include("template.php");
         dataTable.addColumn('number', 'Count');
 
         dataFromApi.forEach(item => {
-          dataTable.addRow([item.incident_type, parseInt(item.count)]); // Parse count as integer
+          dataTable.addRow([item.incident_type, parseInt(item.count)]);
         });
 
         const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
@@ -47,9 +47,9 @@ include("template.php");
     </script>
 
 <div class="col-md-8 border m-auto">
-	<div class="row border border-primary my-3">
+	<div class="row border border-primary my-3 align-items-center">
     <!--Div that will hold the pie chart-->
-    <div id="chart_div"></div>
+    <div id="chart_div" class="m-auto" style="height: 600px; width: 600px;"></div>
 </div>
 </div>
 <?php

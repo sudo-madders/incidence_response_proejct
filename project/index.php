@@ -4,6 +4,11 @@ session_start();
 include_once('library/tracking.php');
 include_once('library/database.php');
 $failed_login = False;
+
+if (isset($_SESSION['user_ID'])) {
+	header("Location:incident_dashboard.php");
+}
+
 if (isset($_POST['username']) and isset($_POST['password'])) {
 	
 	$name = $mysqli->real_escape_string($_POST['username']);

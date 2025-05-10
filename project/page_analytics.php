@@ -87,8 +87,8 @@ require_once("template.php");
 $(document).ready(function() {
     $('#userTable').DataTable({
         ajax: {
-            url: 'library/get_tracking_data.php',   //  The PHP script that returns the JSON
-            dataSrc: 'data'       //  Tell DataTables where the data is
+            url: 'library/get_tracking_data.php',  
+            dataSrc: 'data'       
         },
         columns: [
             { data: 'visit_ID'},
@@ -100,7 +100,8 @@ $(document).ready(function() {
         ],
         scrollCollapse: true,
         scrollY: '400px',
-		scrollX: '100%'
+		scrollX: '100%',
+		order: [[0, 'desc']]
     });
 });
 </script>

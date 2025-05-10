@@ -90,10 +90,11 @@ $currentPage = explode("/", $currentPage)[2];
 						  <li class="nav-item">
 							<a class="nav-link <?php if ($currentPage == 'user_management.php') { echo 'active'; }?>" href="user_management.php">User Managment</a>
 						  </li>
-						  <?php endif; ?>
+						  
 						  <li class="nav-item">
 							<a class="nav-link <?php if ($currentPage == 'page_analytics.php') { echo 'active'; }?>" href="page_analytics.php">Page analytics</a>
 						  </li>
+						  <?php endif; ?>
 						  <li class="nav-item">
 							<a class="nav-link <?php if ($currentPage == 'incident_analytics.php') { echo 'active'; }?>" href="incident_analytics.php">Incident Analytics</a>
 						  </li>
