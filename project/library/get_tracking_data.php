@@ -19,6 +19,9 @@ $result = $mysqli->query($query);
 
 $data = array();
 while ($row = $result->fetch_assoc()) {
+	if (empty($row['username'])) {
+		$row['username'] = "Unknown";
+	}
     $data[] = $row;
 }
 
