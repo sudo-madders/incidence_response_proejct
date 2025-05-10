@@ -3,3 +3,8 @@
 	width: 80vw !important;
 }
 
+/* Custom hover effect only */
+.hover-effect:hover:not(.active) {
+    background-color: #e2e3e5 !important;
+}
+

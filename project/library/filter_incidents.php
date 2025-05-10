@@ -141,7 +141,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		}
 		
 		$edit = <<<END
-		<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
+		<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
 			Edit
 		</button>
 		
@@ -155,40 +155,38 @@ if ($incident_result && $incident_result->num_rows > 0) {
 				<!-- Här börjar själva panelen -->
 				<div class="row">
 					<div class="col">
-						<div class="row">
-							<form method="post" action="incident_dashboard.php">
-								<div class="row">
-									<div class="col">
-										<label for="comment_{$row['incident_ID']}" class="form-label">Comment</label>
-										<textarea class="form-control" name="comment" id="comment_{$row['incident_ID']}" rows="3"></textarea>
-									</div>
+						<form method="post" action="incident_dashboard.php">
+							<div class="row mb-3">
+								<div class="col">
+									<label for="comment_{$row['incident_ID']}" class="form-label">Comment</label>
+									<textarea class="form-control" name="comment" id="comment_{$row['incident_ID']}" rows="3"></textarea>
 								</div>
-								<input type="hidden" name="incident_ID" value="{$row['incident_ID']}">
-								<button type="submit" class="btn btn-primary">Submit</button>
-							</form>
-						</div>
-						<div class="row">
-							<h5>Comments:</h5>
-							{$comments_html}
-						</div>
+							</div>
+							<input type="hidden" name="incident_ID" value="{$row['incident_ID']}">
+							<button type="submit" class="btn btn-secondary">Submit</button>
+						</form>
 					</div>
 					<div class="col">
-						<div class="row">
-							<form method="post" action="incident_dashboard.php" enctype="multipart/form-data">
-								<div class="row">
-									<div class="col">
-										<label for="evidence" class="form-label">Upload evidence</label>
-										<input class="form-control" type="file" name="evidence" id="evidence required">
-									</div>
+						<form method="post" action="incident_dashboard.php" enctype="multipart/form-data">
+							<div class="row mb-3">
+								<div class="col">
+									<label for="evidence" class="form-label">Upload evidence</label>
+									<input class="form-control" type="file" name="evidence" id="evidence required">
 								</div>
-								<input type="hidden" name="incident_ID" value="{$row['incident_ID']}">
-								<button type="submit" class="btn btn-primary">Upload</button>
-							</form>
-						</div>
-						<div class="row">
-							<h5>Evidence:</h5>
-							{$evidence_html}
-						</div>
+							</div>
+							<input type="hidden" name="incident_ID" value="{$row['incident_ID']}">
+							<button type="submit" class="btn btn-secondary">Upload</button>
+						</form>
+					</div>
+				</div>
+				<div class="row mt-3">
+					<div class="col">
+						<h5>Comments:</h5>
+						{$comments_html}
+					</div>
+					<div class="col">
+						<h5>Evidence:</h5>
+						{$evidence_html}
 					</div>
 				</div>
 			</div>

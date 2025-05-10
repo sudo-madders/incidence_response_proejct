@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     <?php endif; ?>
 <?php endif; ?>
     <div class="row mb-3 border">
-        <button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
 
@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 						<td><?= htmlspecialchars($row['email']) ?></td>
 						<td><?= htmlspecialchars($row['role']) ?></td>
 						<td>
-							<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
+							<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
 								Edit
 							</button>
 						

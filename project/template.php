@@ -29,7 +29,7 @@ $currentPage = explode("/", $currentPage)[2];
 		<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 		<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 		<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-		<div class="container-fluid border">
+		<div class="container-fluid border bg-light">
 			<div class="row align-items-center justify-content-end">
 				<!-- Hamburger Button (visible only on small screens) -->
 				
@@ -37,43 +37,66 @@ $currentPage = explode("/", $currentPage)[2];
 					☰
 				</button>
 				<div class="col">
-					<h1>Incident response Portal</h1>
+					<h1>Incident Response Portal</h1>
 				</div>
 				
 				<?php if (isset($_SESSION["user_ID"])): ?>
-				<div class="col-auto">
-					<p>Current user: <?= $_SESSION['username'] ?></p>
-				</div>
-				<div class="col-auto">
-					<p>Role: <?= $_SESSION['role'] ?></p>
-				</div>
-				<div class="col-auto">
-					<a href="logout.php" class="btn btn-secondary" role="button">Log out</a>
+				<div class="col-auto pt-3">
+					<div class="row">
+						<div class="col">
+							<p>Current user: <?= $_SESSION['username'] ?></p>
+						</div>
+						<div class="col">
+							<p>Role: <?= $_SESSION['role'] ?></p>
+						</div>
+						<div class="col">
+							<a href="logout.php" class="btn btn-secondary" role="button">Log out</a>
+						</div>
+					</div>
 				</div>
 				<?php endif; ?>
 				
 				<!-- Offcanvas meny-->
-				<div class="offcanvas offcanvas-start d-md-none border" id="sidebarMenu" data-bs-scroll="true" data-bs-backdrop="true">
+				<div class="offcanvas offcanvas-start d-md-none bg-light" id="sidebarMenu" data-bs-scroll="true" data-bs-backdrop="true">
 					<div class="offcanvas-header">
 						<!-- Close Button -->
 						<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 					</div>
 					<div class="offcanvas-body">
-						<ul class="nav nav-pills flex-column">
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'incident_dashboard.php') { echo 'active'; }?>" href="incident_dashboard.php">Incident Dashboard</a>
-						  </li>
-						  <?php if ($_SESSION["role"] == "administrator"): ?>
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'user_management.php') { echo 'active'; }?>" href="user_management.php">User Managment</a>
-						  </li>
-						  <?php endif; ?>
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'page_analytics.php') { echo 'active'; }?>" href="page_analytics.php">Page analytics</a>
-						  </li>
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'incident_analytics.php') { echo 'active'; }?>" href="incident_analytics.php">Incident Analytics</a>
-						  </li>
+						<ul class="nav nav-pills flex-column gap-2 p-3">
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_dashboard.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="incident_dashboard.php">
+								   <i class="bi bi-clipboard-data me-2"></i>
+								   Incident Dashboard
+								</a>
+							</li>
+							
+							<?php if ($_SESSION["role"] == "administrator"): ?>
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'user_management.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="user_management.php">
+								   <i class="bi bi-people me-2"></i>
+								   User Management
+								</a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'page_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="page_analytics.php">
+								   <i class="bi bi-bar-chart me-2"></i>
+								   Page Analytics
+								</a>
+							</li>
+							<?php endif; ?>
+							
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="incident_analytics.php">
+								   <i class="bi bi-graph-up me-2"></i>
+								   Incident Analytics
+								</a>
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -81,25 +104,45 @@ $currentPage = explode("/", $currentPage)[2];
 				
 				<div class="row gx-4 mt-3 vh-80 border border-danger">
 					<!-- Sidebar navigation -->
-					<div class="col-auto border border-secondary d-none d-md-block">
-						<ul class="nav nav-pills flex-column">
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'incident_dashboard.php') { echo 'active'; }?>" href="incident_dashboard.php">Incident Dashboard</a>
-						  </li>
-						  <?php if ($_SESSION["role"] == "administrator"): ?>
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'user_management.php') { echo 'active'; }?>" href="user_management.php">User Managment</a>
-						  </li>
-						  
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'page_analytics.php') { echo 'active'; }?>" href="page_analytics.php">Page analytics</a>
-						  </li>
-						  <?php endif; ?>
-						  <li class="nav-item">
-							<a class="nav-link <?php if ($currentPage == 'incident_analytics.php') { echo 'active'; }?>" href="incident_analytics.php">Incident Analytics</a>
-						  </li>
+					<div class="col-auto border-end border-secondary d-none d-md-block bg-light">
+						<ul class="nav nav-pills flex-column gap-2 p-3">
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_dashboard.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="incident_dashboard.php">
+								   <i class="bi bi-clipboard-data me-2"></i>
+								   Incident Dashboard
+								</a>
+							</li>
+							
+							<?php if ($_SESSION["role"] == "administrator"): ?>
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'user_management.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="user_management.php">
+								   <i class="bi bi-people me-2"></i>
+								   User Management
+								</a>
+							</li>
+							
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'page_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="page_analytics.php">
+								   <i class="bi bi-bar-chart me-2"></i>
+								   Page Analytics
+								</a>
+							</li>
+							<?php endif; ?>
+							
+							<li class="nav-item">
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								   href="incident_analytics.php">
+								   <i class="bi bi-graph-up me-2"></i>
+								   Incident Analytics
+								</a>
+							</li>
 						</ul>
 					</div>
+
+
 					<!-- Main content -->
 
 <?php 

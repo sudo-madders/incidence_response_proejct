@@ -176,9 +176,19 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 }
 ?>
 				<!-- Main content -->
-				<div class="col">
+				<div class="col bg-white">
 					<div class="row mb-3 border">
-						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
+					<?php 
+					if ($_SESSION['role'] == "reporter") {
+						$username = $_SESSION['username'];
+						$incident_query = "SELECT * FROM reporter_view WHERE username = '{$username}' ORDER BY incident_ID DESC";
+					} else {
+						$incident_query = "SELECT * FROM all_incidents ORDER BY incident_ID DESC";
+					}
+					?>
+					</div>
+					<div class="row mb-3 border">
+						<button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
 							Add new incident
 						</button>
 						
@@ -371,7 +381,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 						</select>
 					</td>
                     <td>
-						<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+						<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Edit
 						</button>
 						
@@ -385,86 +395,84 @@ if ($incident_result && $incident_result->num_rows > 0) {
 								<!-- Här börjar själva panelen -->
 								<div class="row">
 									<div class="col">
-										<div class="row">
-											<form method="post" action="incident_dashboard.php">
-												<div class="row">
-													<div class="col">
-														<label for="comment_<?= $incident['incident_ID']?>" class="form-label">Comment</label>
-														<textarea class="form-control" name="comment" id="comment_<?= $incident['incident_ID']?>" rows="3"></textarea>
-													</div>
+										<form method="post" action="incident_dashboard.php">
+											<div class="row mb-3">
+												<div class="col">
+													<label for="comment_<?= $incident['incident_ID']?>" class="form-label">Comment</label>
+													<textarea class="form-control" name="comment" id="comment_<?= $incident['incident_ID']?>" rows="3"></textarea>
 												</div>
-												<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
-												<button type="submit" class="btn btn-primary">Submit</button>
-											</form>
-										</div>
-										<div class="row">
-											<h5>Comments:</h5>
-											<?php if (isset($incident['comments']) && !empty($incident['comments'])): ?>
-												<table class="table table-striped table-bordered">
-													<thead class="table-light">
-														<tr>
-															<th>Timestamp</th>
-															<th>User</th>
-															<th>Comment</th>
-														</tr>
-													</thead>
-													<tbody>
-														<?php foreach ($incident['comments'] as $comment): ?>
-															<tr>
-																<td><?= htmlspecialchars($comment['timestamp'] ?? '') ?></td>
-															
-																<td><?= htmlspecialchars($comment['username'] ?? '') ?></td>
-															
-																<td><?= htmlspecialchars($comment['text'] ?? '') ?></td>
-															</tr>
-														<?php endforeach; ?>
-													</tbody>
-												</table>
-											<?php else: ?>
-												<p>No comments yet.</p>
-											<?php endif; ?>
-										</div>
+											</div>
+											<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
+											<button type="submit" class="btn btn-secondary">Submit</button>
+										</form>
 									</div>
 									<div class="col">
-										<div class="row">
-											<form method="post" action="incident_dashboard.php" enctype="multipart/form-data">
-												<div class="row">
-													<div class="col">
-														<label for="evidence" class="form-label">Upload evidence</label>
-														<input class="form-control" type="file" name="evidence" id="evidence required">
-													</div>
+										<form method="post" action="incident_dashboard.php" enctype="multipart/form-data">
+											<div class="row mb-3">
+												<div class="col">
+													<label for="evidence" class="form-label">Upload evidence</label>
+													<input class="form-control" type="file" name="evidence" id="evidence required">
 												</div>
-												<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
-												<button type="submit" class="btn btn-primary">Upload</button>
-											</form>
-										</div>
-										<div class="row">
-											<h5>Evidence:</h5>
-											<?php if (isset($incident['evidence']) && !empty($incident['evidence'])): ?>
-												<table class="table table-striped table-bordered">
-													<thead class="table-light">
+											</div>
+											<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
+											<button type="submit" class="btn btn-secondary">Upload</button>
+										</form>
+									</div>
+								</div>
+								<div class="row mt-3">
+									<div class="col">
+										<h5>Comments:</h5>
+										<?php if (isset($incident['comments']) && !empty($incident['comments'])): ?>
+											<table class="table table-striped table-bordered">
+												<thead class="table-light">
+													<tr>
+														<th>Timestamp</th>
+														<th>User</th>
+														<th>Comment</th>
+													</tr>
+												</thead>
+												<tbody>
+													<?php foreach ($incident['comments'] as $comment): ?>
 														<tr>
-															<th>Timestamp</th>
-															<th>User</th>
-															<th>Path</th>
+															<td><?= htmlspecialchars($comment['timestamp'] ?? '') ?></td>
+														
+															<td><?= htmlspecialchars($comment['username'] ?? '') ?></td>
+														
+															<td><?= htmlspecialchars($comment['text'] ?? '') ?></td>
 														</tr>
-													</thead>
-													<tbody>
-														<?php foreach ($incident['evidence'] as $evidence): ?>
-															<tr>
-																<td><?= htmlspecialchars($evidence['timestamp'] ?? '') ?></td>
-															
-																<td><?= htmlspecialchars($evidence['username'] ?? '') ?></td>
-															
-																<td><a href="uploads/<?= htmlspecialchars($evidence['path'] ?? '') ?>"><?= htmlspecialchars($evidence['path'] ?? '') ?></td>
-															</tr>
-														<?php endforeach; ?>
-													</tbody>
-												</table>
-											<?php else: ?>
-												<p>No evidence yet.</p>
-											<?php endif; ?>
-										</div>
+													<?php endforeach; ?>
+												</tbody>
+											</table>
+										<?php else: ?>
+											<p>No comments yet.</p>
+										<?php endif; ?>
+									</div>
+									<div class="col">
+										<h5>Evidence:</h5>
+										<?php if (isset($incident['evidence']) && !empty($incident['evidence'])): ?>
+											<table class="table table-striped table-bordered">
+												<thead class="table-light">
+													<tr>
+														<th>Timestamp</th>
+														<th>User</th>
+														<th>Path</th>
+													</tr>
+												</thead>
+												<tbody>
+													<?php foreach ($incident['evidence'] as $evidence): ?>
+														<tr>
+															<td><?= htmlspecialchars($evidence['timestamp'] ?? '') ?></td>
+														
+															<td><?= htmlspecialchars($evidence['username'] ?? '') ?></td>
+														
+															<td><a href="uploads/<?= htmlspecialchars($evidence['path'] ?? '') ?>"><?= htmlspecialchars($evidence['path'] ?? '') ?></td>
+														</tr>
+													<?php endforeach; ?>
+												</tbody>
+											</table>
+										<?php else: ?>
+											<p>No evidence yet.</p>
+										<?php endif; ?>
 									</div>
 								</div>
 							</div>
