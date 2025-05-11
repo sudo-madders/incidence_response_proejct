@@ -106,17 +106,18 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
     $severity = $mysqli->real_escape_string($_POST['severity']);
     $description = $mysqli->real_escape_string($_POST['description']);
-
+	$created = $mysqli->real_escape_string($_POST['created']);
     $query = "
-        INSERT INTO incident (incident_type_ID, severity_ID, description) 
+        INSERT INTO incident (incident_type_ID, severity_ID, description, created) 
         VALUES (
             (SELECT incident_type_ID FROM incident_type WHERE incident_type = ?),
             (SELECT severity_ID FROM severity WHERE severity = ?),
-            ?
+            ?,
+			?
         )";
 
     if ($stmt = $mysqli->prepare($query)) {
-        $stmt->bind_param("sss", $incident_type, $severity, $description);
+        $stmt->bind_param("ssss", $incident_type, $severity, $description, $created);
 
         if ($stmt->execute()) {
             $incident_id = $mysqli->insert_id;
@@ -164,8 +165,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
                     }
                 }
             }
-            header('Location: incident_dashboard.php');
-            exit;
         } else {
             die("Error: Could not insert incident: " . $stmt->error);
         }
@@ -176,26 +175,16 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 }
 ?>
 				<!-- Main content -->
-				<div class="col bg-white">
+				<div class="col mt-1">
 					<div class="row mb-3">
-					<?php 
-					if ($_SESSION['role'] == "reporter") {
-						$username = $_SESSION['username'];
-						$incident_query = "SELECT * FROM reporter_view WHERE username = '{$username}' ORDER BY incident_ID DESC";
-					} else {
-						$incident_query = "SELECT * FROM all_incidents ORDER BY incident_ID DESC";
-					}
-					?>
-					</div>
-					<div class="row mb-3">
-						<button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
-							Add new incident
-						</button>
 						
+						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
+						Add new incident
+						</button>
 						<!-- Offcanvas, More selection -->
 						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewIncident" aria-labelledby="addNewIncidentLabel">
 							<div class="offcanvas-header">
-								<h5 class="offcanvas-title" id="addNewIncidentLabel">Add new incident</h5>
+								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Add new incident</h3>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
 							<div class="offcanvas-body ">
@@ -244,13 +233,15 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 												<option value="High">High</option>
 												<option value="Critical">Critical</option>
 											</select>
+											<label for="created">When did it happend:</label>
+											<input class="mt-3 form-onrtrol" type="date" id="created" name="created">
 										</div>
 									</div>
 									<br>
 									<label for="description" class="form-label">Description</label>
 									<textarea  class="form-control" id="description" name="description" rows="3" required></textarea>
 									<br>
-								<input type="submit" value="Submit">
+								<input type="submit" class="btn btn-accent" value="Submit">
 								</form>
 							</div>
 						</div>
@@ -300,15 +291,32 @@ $incident_result = $mysqli->query($incident_query);
 if ($incident_result && $incident_result->num_rows > 0) {
 	$incidents = [];
 	while ($row = $incident_result->fetch_assoc()) {
+		/*Get all the assets associated with an incident*/
+		$assets = [];
+		$asset_query = "SELECT a.asset
+						FROM all_incidents ai
+						JOIN affected_assets aa ON ai.incident_ID = aa.incident_ID
+						JOIN asset a ON aa.asset_ID = a.asset_ID
+						WHERE ai.incident_ID = " . $row['incident_ID'] . "";
+		logError($query);
+		$asset_result = $mysqli->query($asset_query);
+		if ($asset_result && $asset_result->num_rows > 0) {
+			while ($asset_row = $asset_result->fetch_assoc()) {
+				$assets[] = $asset_row['asset'];
+			}
+		}
+		
 		$query = "SELECT i_status_ID, u.username, timestamp, s.status FROM incident_status i_s 
 		JOIN user u ON u.user_ID = i_s.user_ID
 		JOIN status s ON i_s.status_ID = s.status_ID
-		WHERE incident_ID = " . $row['incident_ID'];
+		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
 		
 		$result = $mysqli->query($query);
 		$comments = [];
 		$evidence = [];
 		$events = [];
+		$created = [];
+		$created['assets'] = $assets;
 		if ($result && $result->num_rows > 0) {
 			$first = True;
 			while ($i_status_ID_row = $result->fetch_assoc()) {
@@ -323,6 +331,8 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$status_changed['type'] = "Incident created";
 					$events[] = $status_changed;
 					$first = False;
+					$created['username'] = $i_status_ID_row['username'];
+					$created['timestamp'] = $i_status_ID_row['timestamp'];
 				}
 				$evidence_query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
 				$evidence_result = $mysqli->query($evidence_query);
@@ -356,6 +366,8 @@ if ($incident_result && $incident_result->num_rows > 0) {
 				}
 			}
 		}
+		$row['created'] = $created;
+		$row['assets'] = $assets;
 		$row['events'] = $events;
 		$row['evidence'] = $evidence;
 		$row['comments'] = $comments;
@@ -403,18 +415,25 @@ if ($incident_result && $incident_result->num_rows > 0) {
 						</select>
 					</td>
                     <td>
-						<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Edit
 						</button>
 						
 						<!-- Offcanvas, More selection -->
 						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
 							<div class="offcanvas-header">
-								<h5 class="offcanvas-title" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h5>
+								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
+								<div class="row">
+									<div class="col">
+										<h5 class="fw-bold">Created by: </h5> <p><?= htmlspecialchars($incident['created']['username']) ?></p>
+									</div>
+									<div class="col"></div>
+									<div class="col"></div>
+								</div>
 								<div class="row">
 									<div class="col">
 										<form method="post" action="incident_dashboard.php">
@@ -482,6 +501,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 												</thead>
 												<tbody>
 													<?php foreach ($incident['evidence'] as $evidence): ?>
+													<?php asort($evidence); ?>
 														<tr>
 															<td><?= htmlspecialchars($evidence['timestamp'] ?? '') ?></td>
 														
@@ -499,17 +519,17 @@ if ($incident_result && $incident_result->num_rows > 0) {
 								</div>
 							</div>
 						</div>
-						<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Show events
 						</button>
 						
 						<!-- Offcanvas, More selection -->
 						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
 							<div class="offcanvas-header">
-								<h5 class="offcanvas-title" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h5>
+								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
-							<div class="offcanvas-body ">
+							<div class="offcanvas-body">
 								<?php if (isset($incident['events']) && !empty($incident['events'])): ?>
 									<table class="table table-striped table-bordered">
 										<thead class="table-light">
@@ -529,7 +549,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 													<td><?= htmlspecialchars($events['type']  ?? '') ?></td>
 												</tr>
 											<?php endforeach; ?>
-										</tbody>¨
+										</tbody>
 									</table>
 								<?php else: ?>
 									<p>No events yet.</p>
@@ -592,7 +612,7 @@ $(document).ready(function() {
             $newRow.append($('<td>').text(row.description));
             $newRow.append($('<td>').text(row.incident_type));
             $newRow.append($('<td>').text(row.severity));
-            $newRow.append($('<td>').text(row.status));
+            $newRow.append($('<td>').html(row.select));
             $newRow.append($('<td>').html(row.edit));
             
             $tableBody.append($newRow);
@@ -603,7 +623,7 @@ $(document).ready(function() {
     $severityFilter.on('change', filterTable);
 	
 	
-	$('select[name="status"]').on('change', function() {
+	$(document).on('change', 'select[name="status"]', function() {
         const incidentId = $(this).attr('id').replace('select_', '');
         const newStatus = $(this).val();
         

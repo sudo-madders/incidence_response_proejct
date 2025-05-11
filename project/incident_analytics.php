@@ -33,9 +33,14 @@ include("template.php");
         dataFromApi.forEach(item => {
           dataTable.addRow([item.incident_type, parseInt(item.count)]);
         });
+		
+		var options = {
+            title: 'Incident Types',
+            backgroundColor: '#eceff1' // Light gray background for the whole chart
+        }
 
         const chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-        chart.draw(dataTable, { title: 'Incident Types' });
+        chart.draw(dataTable, options);
       } else {
         console.log('No data received from the API.');
       }
@@ -46,10 +51,10 @@ include("template.php");
 }
     </script>
 
-<div class="col m-auto bg-white">
+<div class="col m-auto">
 	<div class="row´ my-3 align-items-center">
     <!--Div that will hold the pie chart-->
-    <div id="chart_div" class="m-auto" style="height: 600px; width: 600px;"></div>
+    <div id="chart_div" class="m-auto bg-secondary-mono" style="height: 600px; width: 600px;"></div>
 </div>
 </div>
 <?php

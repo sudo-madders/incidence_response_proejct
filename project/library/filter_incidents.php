@@ -54,7 +54,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 	while ($row = $incident_result->fetch_assoc()) {
 		$query = "SELECT i_status_ID, u.username, timestamp FROM incident_status i_s 
 		JOIN user u ON u.user_ID = i_s.user_ID
-		WHERE incident_ID = " . $row['incident_ID'];
+		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
 		
 		$result = $mysqli->query($query);
 		$comments = [];
@@ -192,6 +192,26 @@ if ($incident_result && $incident_result->num_rows > 0) {
 			</div>
 		</div>
 END;
+
+		$select = '<select class="form-select" name="status" id="select_' . $row['incident_ID'] . '">';
+		$pending = '';
+		$in_progress = '';
+		$resolved = '';
+		if ($row['status'] == "Pending") {
+			$pending = 'selected';
+		} elseif ($row['status'] == "Resolved") {
+			$resolved = 'selected';
+		} else {
+			$in_progress = 'selected';
+		}
+		$select = <<<END
+		<select class="form-select" name="status" id="select_{$row['incident_ID']}">
+			<option {$pending} value="Pending">Pending</option>
+			<option {$in_progress} value="In progress">In progress</option>
+			<option {$resolved} value="Resolved">Resolved</option>
+		</select>
+		END;
+		$row['select'] = $select;
 		$row["edit"] = $edit;
 		$incidents[] = $row;
 	}

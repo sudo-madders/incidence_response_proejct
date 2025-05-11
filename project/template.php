@@ -4,8 +4,7 @@ session_start();
 
 // Check if the user is logged in (session variable is set)
 if (!isset($_SESSION['user_ID'])) {
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'You must be logged in to access this page.';
+    header("Location:index.php");
     exit;
 }
 
@@ -13,7 +12,7 @@ $currentPage = $_SERVER['PHP_SELF'];
 $currentPage = explode("/", $currentPage)[2];
 ?>
 <!doctype html>
-<html lang="en">
+<html lang="en" class="bg-secondary-mono">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,8 +28,8 @@ $currentPage = explode("/", $currentPage)[2];
 		<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 		<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 		<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-		<div class="container-fluid border bg-light">
-			<div class="row align-items-center justify-content-end">
+		<div class="container-fluid border bg-secondary-mono">
+			<div class="row align-items-center justify-content-end bg-primary-mono">
 				<!-- Hamburger Button (visible only on small screens) -->
 				
 				<button class="col-auto d-md-none btn btn-lg" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
@@ -50,7 +49,7 @@ $currentPage = explode("/", $currentPage)[2];
 							<p>Role: <?= $_SESSION['role'] ?></p>
 						</div>
 						<div class="col">
-							<a href="logout.php" class="btn btn-secondary" role="button">Log out</a>
+							<a href="logout.php" class="btn btn-accent" role="button">Log out</a>
 						</div>
 					</div>
 				</div>
@@ -102,12 +101,12 @@ $currentPage = explode("/", $currentPage)[2];
 				</div>
 			</div>
 				
-				<div class="row gx-4 mt-3 vh-80 border border-dark">
+				<div class="row gx-4 vh-80 border border-dark">
 					<!-- Sidebar navigation -->
-					<div class="col-auto border-end border-secondary d-none d-md-block bg-light">
+					<div class="col-auto border-end border-secondary d-none d-md-block bg-secondary-mono">
 						<ul class="nav nav-pills flex-column gap-2 p-3">
 							<li class="nav-item">
-								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_dashboard.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_dashboard.php') ? 'active bg-primary-mono text-white' : 'text-dark bg-light' ?> hover-effect" 
 								   href="incident_dashboard.php">
 								   <i class="bi bi-clipboard-data me-2"></i>
 								   Incident Dashboard
@@ -116,7 +115,7 @@ $currentPage = explode("/", $currentPage)[2];
 							
 							<?php if ($_SESSION["role"] == "administrator"): ?>
 							<li class="nav-item">
-								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'user_management.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'user_management.php') ? 'active bg-primary-mono text-white' : 'text-dark bg-light' ?> hover-effect"
 								   href="user_management.php">
 								   <i class="bi bi-people me-2"></i>
 								   User Management
@@ -124,7 +123,7 @@ $currentPage = explode("/", $currentPage)[2];
 							</li>
 							
 							<li class="nav-item">
-								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'page_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'page_analytics.php') ? 'active bg-primary-mono text-white' : 'text-dark bg-light' ?> hover-effect" 
 								   href="page_analytics.php">
 								   <i class="bi bi-bar-chart me-2"></i>
 								   Page Analytics
@@ -133,7 +132,7 @@ $currentPage = explode("/", $currentPage)[2];
 							<?php endif; ?>
 							
 							<li class="nav-item">
-								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_analytics.php') ? 'active bg-secondary text-white' : 'text-dark bg-light' ?> hover-effect" 
+								<a class="nav-link rounded-pill d-flex align-items-center py-2 px-3 <?= ($currentPage == 'incident_analytics.php') ? 'active bg-primary-mono text-white' : 'text-dark bg-light' ?> hover-effect" 
 								   href="incident_analytics.php">
 								   <i class="bi bi-graph-up me-2"></i>
 								   Incident Analytics
