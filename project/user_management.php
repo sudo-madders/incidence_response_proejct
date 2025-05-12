@@ -163,8 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Success!</h5>
+                <div class="modal-header bg-primary-mono text-white">
+                    <h5 class="bg-primary-mono">Success!</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body text-center">
@@ -180,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                    <button type="button" class="btn btn-accent" data-bs-dismiss="modal">OK</button>
                 </div>
             </div>
         </div>
