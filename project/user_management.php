@@ -9,7 +9,7 @@ if ($_SESSION["role"] != "administrator") {
     exit;
 }
 
-// Handle all form submissions
+// handling all form submissions before the html code
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add new user logic
     if (isset($_POST['submit'])) {
@@ -26,14 +26,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($_POST['password'] !== $_POST['confirm_password']) {
             die("Error: Passwords do not match");
         }
-
+        // sanitizing and validating inputs (to avoid sql injection)
         $username = $mysqli->real_escape_string(trim($_POST['username']));
         $email = $mysqli->real_escape_string(trim($_POST['email']));
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
         $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        // Get role ID
+        // getting role ID from the database
         $role_name = $mysqli->real_escape_string(trim($_POST['role']));
         $role_query = "SELECT user_role_ID FROM user_role WHERE role = ? LIMIT 1";
         $role_stmt = $mysqli->prepare($role_query);
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role_stmt->execute();
         $role_result = $role_stmt->get_result();
 
-        // Check if the role exists
+        // checking if the role exists
         if ($role_result->num_rows === 0) {
             die("Error: Invalid role selected");
         }
@@ -49,17 +49,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role_row = $role_result->fetch_assoc();
         $role_id = $role_row['user_role_ID'];
 
-        // Check if username already exists
+        // checking if the username is unique
         $check_query = "SELECT username FROM user WHERE username = '$username' LIMIT 1";
         $check_result = $mysqli->query($check_query);
         if ($check_result && $check_result->num_rows > 0) {
             die("Error: Username already exists");
         }
 
-        // Insert new user
+        // inserting the new user
         $query = "INSERT INTO user (username, password, email, first_name, last_name, user_role_ID)
                   VALUES (?, ?, ?, ?, ?, ?)";
-
+        // using a statement. prepare statement prepares the sql statement for execution
         $stmt = $mysqli->prepare($query);
         if (!$stmt) {
             die("Prepare failed: " . $mysqli->error);
@@ -74,17 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Error creating user: " . $stmt->error);
         }
     }
-    // Edit user logic
+    
+    // editing user logic
     elseif (isset($_POST['edit_user'])) {
-
-
         $user_id = intval($_POST['user_id']);
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
         $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
         $email = $mysqli->real_escape_string(trim($_POST['email']));
         $username = $mysqli->real_escape_string(trim($_POST['username']));
 
-        // Check email uniqueness
+        // checking email uniqueness
         $email_check = $mysqli->prepare("SELECT user_id FROM user WHERE email = ? AND user_id != ?");
         $email_check->bind_param("si", $email, $user_id);
         $email_check->execute();
@@ -159,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Success messages with bootstrap modal popup -->
 <?php if (isset($_GET['success'])): ?>
-    <!-- Success Modal -->
+    <!-- bootstrap Success Modal -->
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -382,7 +381,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </div>
                             
-                            <a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
+                            <a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -405,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Existing offcanvas handler
+    // offcanvas handler
     document.addEventListener('click', function(event) {
         if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
             const targetId = event.target.getAttribute('data-bs-target');
