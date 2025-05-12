@@ -1,60 +1,70 @@
 <?php 
 require_once("template.php");
 
+// checks if the user is logged in, if not, the rest of the page won't be loaded
 if ($_SESSION["role"] != "administrator") {
-	header('HTTP/1.0 401 Unauthorized');
-    echo 'You must be administrator in to access this page.';
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'You must be administrator to access this page.';
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
-    foreach ($required as $field) {
-        if (empty($_POST[$field])) {
-            die("Error: $field is required");
+// Handle all form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Add new user logic
+    if (isset($_POST['submit'])) {
+        $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
+
+        // Check if any required fields are empty
+        foreach ($required as $field) {
+            if (empty($_POST[$field])) {
+                die("Error: $field is required");
+            }
         }
-    }
 
-    if ($_POST['password'] !== $_POST['confirm_password']) {
-        die("Error: Passwords do not match");
-    }
+        // Confirm passwords match
+        if ($_POST['password'] !== $_POST['confirm_password']) {
+            die("Error: Passwords do not match");
+        }
 
-    $username = $mysqli->real_escape_string(trim($_POST['username']));
-    $email = $mysqli->real_escape_string(trim($_POST['email']));
-    $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
-    $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+        $username = $mysqli->real_escape_string(trim($_POST['username']));
+        $email = $mysqli->real_escape_string(trim($_POST['email']));
+        $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
+        $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
+        $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // Convert role name to user_role_ID
-    $role_name = $mysqli->real_escape_string(trim($_POST['role']));
-    $role_query = "SELECT user_role_ID FROM user_role WHERE role = ? LIMIT 1";
-    $role_stmt = $mysqli->prepare($role_query);
-    $role_stmt->bind_param("s", $role_name);
-    $role_stmt->execute();
-    $role_result = $role_stmt->get_result();
+        // Get role ID
+        $role_name = $mysqli->real_escape_string(trim($_POST['role']));
+        $role_query = "SELECT user_role_ID FROM user_role WHERE role = ? LIMIT 1";
+        $role_stmt = $mysqli->prepare($role_query);
+        $role_stmt->bind_param("s", $role_name);
+        $role_stmt->execute();
+        $role_result = $role_stmt->get_result();
 
-    if ($role_result->num_rows === 0) {
-        die("Error: Invalid role selected");
-    }
+        // Check if the role exists
+        if ($role_result->num_rows === 0) {
+            die("Error: Invalid role selected");
+        }
 
-    $role_row = $role_result->fetch_assoc();
-    $role_id = $role_row['user_role_ID'];
+        $role_row = $role_result->fetch_assoc();
+        $role_id = $role_row['user_role_ID'];
 
-    $check_query = "SELECT username FROM user WHERE username = '$username' LIMIT 1";
-    $check_result = $mysqli->query($check_query);
-    if ($check_result && $check_result->num_rows > 0) {
-        die("Error: Username already exists");
-    }
+        // Check if username already exists
+        $check_query = "SELECT username FROM user WHERE username = '$username' LIMIT 1";
+        $check_result = $mysqli->query($check_query);
+        if ($check_result && $check_result->num_rows > 0) {
+            die("Error: Username already exists");
+        }
 
-    $query = "INSERT INTO user (username, password, email, first_name, last_name, user_role_ID)
-              VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $mysqli->prepare($query);
+        // Insert new user
+        $query = "INSERT INTO user (username, password, email, first_name, last_name, user_role_ID)
+                  VALUES (?, ?, ?, ?, ?, ?)";
 
-    if (!$stmt) {
-        die("Prepare failed: " . $mysqli->error);
-    }
+        $stmt = $mysqli->prepare($query);
+        if (!$stmt) {
+            die("Prepare failed: " . $mysqli->error);
+        }
 
-    $stmt->bind_param("sssssi", $username, $password, $email, $first_name, $last_name, $role_id);
+        $stmt->bind_param("sssssi", $username, $password, $email, $first_name, $last_name, $role_id);
 
     if ($stmt->execute()) {
         header('Location: ' . $_SERVER['PHP_SELF'] . '?success=add');
@@ -65,10 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 }
 ?>
 
-
-
-
-<div class="col bg-white">
 <?php if (isset($_GET['success'])): ?>
     <?php if ($_GET['success'] === 'add'): ?>
         <div class="alert alert-success text-center">User added successfully!</div>
@@ -78,11 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         <div class="alert alert-success text-center">User deleted successfully!</div>
     <?php endif; ?>
 <?php endif; ?>
-    <div class="row mb-3">
-        <button type="button" class="btn btn-dark bg-gradient mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+
+
+<div class="col">
+    <div class="row mb-3 border">
+        <button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
-
+        <!-- with offcanvas -->
         <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="addNewUserLabel">Add new user</h5>
@@ -92,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
                 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="first_name" class="form-label" >First Name</label>
+                            <label for="first_name" class="form-label">First Name</label>
                             <input type="text" id="first_name" name="first_name" class="form-control" required>
                             <div class="invalid-feedback">Please provide a first name.</div>
                         </div>
@@ -177,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 						<td><?= htmlspecialchars($row['email']) ?></td>
 						<td><?= htmlspecialchars($row['role']) ?></td>
 						<td>
-							<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
+							<button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="user_<?= htmlspecialchars($row['user_id']) ?>" aria-controls="user_<?= htmlspecialchars($row['user_id']) ?>">
 								Edit
 							</button>
 						
@@ -238,20 +247,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
 		</div>
     </div>
 </div>
-</div>
+
 <script>
-document.addEventListener('click', function(event) {
-  if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
-    const targetId = event.target.getAttribute('data-bs-target');
-    const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
-    if (offcanvasElement) {
-      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
-      offcanvas.show();
-    }
-  }
+// Toggle password fields when checkbox is clicked
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[id^="changePassword_"]').forEach(checkbox => {
+        const userId = checkbox.id.split('_')[1];
+        checkbox.addEventListener('change', function() {
+            const passwordFields = document.getElementById('passwordFields_' + userId);
+            if (passwordFields) {
+                passwordFields.style.display = this.checked ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Existing offcanvas handler
+    document.addEventListener('click', function(event) {
+        if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+                offcanvas.show();
+            }
+        }
+    });
 });
 </script>
 
-<?php 
-echo $footer;
-?>
+<?php echo $footer; ?>
