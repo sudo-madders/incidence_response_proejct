@@ -157,15 +157,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- Success messages -->
+<!-- Success messages with bootstrap modal popup -->
 <?php if (isset($_GET['success'])): ?>
-    <?php if ($_GET['success'] === 'add'): ?>
-        <div class="alert alert-success text-center">User added successfully!</div>
-    <?php elseif ($_GET['success'] === 'edit'): ?>
-        <div class="alert alert-success text-center">User updated successfully!</div>
-    <?php elseif ($_GET['success'] === 'delete'): ?>
-        <div class="alert alert-success text-center">User deleted successfully!</div>
-    <?php endif; ?>
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Success!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <?php if ($_GET['success'] === 'add'): ?>
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                        <p>User added successfully!</p>
+                    <?php elseif ($_GET['success'] === 'edit'): ?>
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                        <p>User updated successfully!</p>
+                    <?php elseif ($_GET['success'] === 'delete'): ?>
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-3"></i>
+                        <p>User deleted successfully!</p>
+                    <?php endif; ?>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- the js for popup -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+        });
+    </script>
 <?php endif; ?>
 
 <div class="col">
