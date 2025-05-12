@@ -173,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="col">
     <div class="row mb-3 border">
         <!-- add new user button -->
-        <button type="button" class="btn btn-primary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
         <!-- with offcanvas -->
@@ -272,7 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <td><?= htmlspecialchars($row['email']) ?></td>
                         <td><?= htmlspecialchars($row['role']) ?></td>
                         <td>
-                            <button type="button" class="btn btn-primary mx-auto" 
+                            <button type="button" class="btn btn-accent mx-auto" 
                                     data-bs-toggle="offcanvas" 
                                     data-bs-target="#editUser_<?= $row['user_id'] ?>" 
                                     aria-controls="editUser_<?= $row['user_id'] ?>">
@@ -280,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </button>
                             
                             <!-- Edit User Offcanvas -->
-                            <div class="offcanvas offcanvas-end offcanvas-md" tabindex="-1" 
+                            <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" 
                                  id="editUser_<?= $row['user_id'] ?>" 
                                  aria-labelledby="editUserLabel_<?= $row['user_id'] ?>">
                                 <div class="offcanvas-header">
