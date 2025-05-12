@@ -76,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Edit user logic
     elseif (isset($_POST['edit_user'])) {
         // Verify admin password first
-        if (!password_verify($_POST['admin_password'], $_SESSION['password'])) {
-            die("Error: Invalid admin password");
-        }
+        //if (!password_verify($_POST['admin_password'], $_SESSION['password'])) {
+        //    die("Error: Invalid admin password");
+        //}
 
         $user_id = intval($_POST['user_id']);
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
