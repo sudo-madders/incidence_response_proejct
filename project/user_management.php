@@ -1,4 +1,5 @@
 <?php 
+ob_start();
 require_once("template.php");
 
 // checks if the user is logged in, if not, the rest of the page won't be loaded
@@ -391,4 +392,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php echo $footer; ?>
+<?php echo $footer;
+ob_end_flush(); ?>
