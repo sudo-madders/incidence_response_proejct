@@ -75,10 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     // Edit user logic
     elseif (isset($_POST['edit_user'])) {
-        // Verify admin password first
-        //if (!password_verify($_POST['admin_password'], $_SESSION['password'])) {
-        //    die("Error: Invalid admin password");
-        //}
+
 
         $user_id = intval($_POST['user_id']);
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
@@ -349,11 +346,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <label class="form-label">Confirm Password</label>
                                                 <input type="password" name="confirm_password" class="form-control">
                                             </div>
-                                        </div>
-                                        
-                                        <div class="mb-3">
-                                            <label class="form-label">Admin Password (for verification)</label>
-                                            <input type="password" name="admin_password" class="form-control" required>
                                         </div>
                                         
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
