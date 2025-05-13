@@ -197,17 +197,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="col">
     <div class="row mb-3 border">
         <!-- add new user button -->
-        <button type="button" class="btn btn-accent btn-lg mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
-        <!-- with offcanvas -->
+        <!-- offcanvas header -->
         <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="addNewUserLabel">Add new user</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
+
+            <!-- offcanvas body -->
             <div class="offcanvas-body">
                 <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
+                    
+                    <div class="mb-3 text-muted small">
+                        <span class="text-danger">*</span> Required fields
+                    </div>
+                        <label for="user_role" class="form-label">Select User Role</label>
+                        <select class="form-select" id="user_role" name="user_role" required>
+                            <option value="" selected disabled>Select role</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Responder">Responder</option>
+                            <option value="Reporter">Reporter</option>
+                        </select>
+                        <div class="invalid-user-role">Please select a user role.</div>
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="first_name" class="form-label">First Name</label>
