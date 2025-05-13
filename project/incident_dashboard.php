@@ -16,7 +16,6 @@ if (isset($_FILES['evidence'])) {
 		echo "Error: File too large";
 		exit;
 	}
-	
 	$file_name = basename($file['name']);
 	$dir = "uploads/";
 	
@@ -24,7 +23,6 @@ if (isset($_FILES['evidence'])) {
 	
 	if (move_uploaded_file($file['tmp_name'], $full_name)) {
 		$incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
-		
 		$query = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}'";
 		$result = $mysqli->query($query);
 		$status_row = $result->fetch_assoc();
@@ -177,7 +175,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 				<!-- Main content -->
 				<div class="col mt-1">
 					<div class="row mb-3">
-						
 						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
 						Add new incident
 						</button>
@@ -189,7 +186,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							</div>
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
-								<form method="post" action="incident_dashboard.php">
+								<form id="add_incident" method="post" action="incident_dashboard.php">
 									<div class="row">
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
@@ -234,7 +231,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 												<option value="Critical">Critical</option>
 											</select>
 											<label for="created">When did it happend:</label>
-											<input class="mt-3 form-onrtrol" type="date" id="created" name="created">
+											<input class="mt-3 form-onrtrol" type="date" id="created" name="created" required>
 										</div>
 									</div>
 									<br>
@@ -298,7 +295,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 						JOIN affected_assets aa ON ai.incident_ID = aa.incident_ID
 						JOIN asset a ON aa.asset_ID = a.asset_ID
 						WHERE ai.incident_ID = " . $row['incident_ID'] . "";
-		logError($query);
+		
 		$asset_result = $mysqli->query($asset_query);
 		if ($asset_result && $asset_result->num_rows > 0) {
 			while ($asset_row = $asset_result->fetch_assoc()) {
@@ -311,12 +308,27 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		JOIN status s ON i_s.status_ID = s.status_ID
 		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
 		
-		$result = $mysqli->query($query);
 		$comments = [];
 		$evidence = [];
 		$events = [];
 		$created = [];
 		$created['assets'] = $assets;
+		
+		
+		$result = $mysqli->query($query);
+		
+		if (!($result && $result->num_rows > 0)) {
+			$query = "SELECT i_status_ID, timestamp, s.status FROM incident_status i_s
+			JOIN status s ON i_s.status_ID = s.status_ID
+			WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
+		} else {
+			$query = "SELECT i_status_ID, u.username, timestamp, s.status FROM incident_status i_s 
+		JOIN user u ON u.user_ID = i_s.user_ID
+		JOIN status s ON i_s.status_ID = s.status_ID
+		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
+		}
+		$result = $mysqli->query($query);
+		logError($query);
 		if ($result && $result->num_rows > 0) {
 			$first = True;
 			while ($i_status_ID_row = $result->fetch_assoc()) {
@@ -325,14 +337,19 @@ if ($incident_result && $incident_result->num_rows > 0) {
 				$comment_result = $mysqli->query($comment_query);
 				if ($first) {
 					$status_changed = [];
-					$status_changed['username'] = $i_status_ID_row['username'];
+					if (isset($i_status_ID_row['username'])) {
+						$status_changed['username'] = $i_status_ID_row['username'];
+						$created['username'] = $i_status_ID_row['username'];
+					} else {
+						$status_changed['username'] = "Unknown";
+						$created['username'] = "Unknown";
+					}
 					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
 					$status_changed['status'] = $i_status_ID_row['status'];
 					$status_changed['type'] = "Incident created";
 					$events[] = $status_changed;
 					$first = False;
-					$created['username'] = $i_status_ID_row['username'];
-					$created['timestamp'] = $i_status_ID_row['timestamp'];
+					$created['timestamp'] = $row['created'];
 				}
 				$evidence_query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
 				$evidence_result = $mysqli->query($evidence_query);
@@ -342,7 +359,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$comment_text = $comment_result->fetch_assoc();
 					$comment['text'] = $comment_text['comment'];
 					$comment['timestamp'] = $i_status_ID_row['timestamp'];
-					$comment['username'] = $i_status_ID_row['username'];
+					$comment['username'] = $i_status_ID_row['username'] ?? 'Unknown';
 					$comments[] = $comment;
 					$comment['type'] = "Comment -> {$comment['text']}";
 					$events[] = $comment;
@@ -358,7 +375,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$events[] = $evidence_data;
 				} else {
 					$status_changed = [];
-					$status_changed['username'] = $i_status_ID_row['username'];
+					$status_changed['username'] = $i_status_ID_row['username'] ?? 'Unknown';
 					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
 					$status_changed['status'] = $i_status_ID_row['status'];
 					$status_changed['type'] = "Status change -> {$i_status_ID_row['status']}";
@@ -384,6 +401,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
                 <th>Description</th>
                 <th>Type</th>
                 <th>Severity</th>
+				<th>Occurred</th>
 				<th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -395,7 +413,11 @@ if ($incident_result && $incident_result->num_rows > 0) {
                     <td><?= htmlspecialchars($incident['description']) ?></td>
                     <td><?= htmlspecialchars($incident['incident_type']) ?></td>
                     <td><?= htmlspecialchars($incident['severity']) ?></td>
+					<td><?= htmlspecialchars($incident['created']['timestamp'] ?? 'Unknown') ?></td>
 					<td>
+						<?php if($_SESSION["role"] == "reporter"): ?>
+							<?= htmlspecialchars($incident['status']) ?>
+						<?php else: ?>
 						<select class="form-select" name="status" id="select_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							<?php
 								$pending = False;
@@ -413,6 +435,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 							<option <?= $in_progress ? 'selected' : ''?> value="In progress">In progress</option>
 							<option <?= $resolved ? 'selected' : ''?> value="Resolved">Resolved</option>
 						</select>
+						<?php endif; ?>
 					</td>
                     <td>
 						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
@@ -428,11 +451,18 @@ if ($incident_result && $incident_result->num_rows > 0) {
 							<div class="offcanvas-body ">
 								<!-- Här börjar själva panelen -->
 								<div class="row">
-									<div class="col">
-										<h5 class="fw-bold">Created by: </h5> <p><?= htmlspecialchars($incident['created']['username']) ?></p>
+									<div class="col border">
+										<h5 class="fw-bold">Created by: </h5> <p><?= htmlspecialchars($incident['created']['username'] ?? 'Unknown') ?></p>
 									</div>
-									<div class="col"></div>
-									<div class="col"></div>
+									
+									<div class="col border">
+										<h5 class="fw-bold">Affected Assets:</h5>
+										<ul>
+										<?php foreach ($incident['created']['assets'] as $asset): ?>
+											<li class="mb-0"><?= htmlspecialchars($asset) ?></li>
+										<?php endforeach; ?>
+										</ul>
+									</div>
 								</div>
 								<div class="row">
 									<div class="col">
