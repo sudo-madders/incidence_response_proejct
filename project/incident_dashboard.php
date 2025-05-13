@@ -282,6 +282,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 								Incidents added last 3 days: <?= $row['count'] ?>
 							</h4>
 						</div>
+						
 					
 					</div>
 					<div class="row mb-3">
@@ -579,7 +580,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 											<div class="row mb-3">
 												<div class="col">
 													<label for="comment_<?= $incident['incident_ID']?>" class="form-label">Comment</label>
-													<textarea class="form-control" name="comment" id="comment_<?= $incident['incident_ID']?>" rows="3"></textarea>
+													<textarea class="form-control" name="comment" id="comment_<?= $incident['incident_ID']?>" rows="3" required></textarea>
 												</div>
 											</div>
 											<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
