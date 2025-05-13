@@ -212,12 +212,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-6 mb-3">
                             <label for="first_name" class="form-label">First Name</label>
                             <input type="text" id="first_name" name="first_name" class="form-control" required>
-                            <div class="invalid-feedback">Please provide a first name.</div>
+                            <div class="invalid-first-name">Please provide a first name.</div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="last_name" class="form-label">Last Name</label>
                             <input type="text" id="last_name" name="last_name" class="form-control" required>
-                            <div class="invalid-feedback">Please provide a last name.</div>
+                            <div class="invalid-last-name">Please provide a last name.</div>
                         </div>
                     </div>
 
@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <option value="Responder">Responder</option>
                             <option value="Reporter">Reporter</option>
                         </select>
-                        <div class="invalid-feedback">Please select a user role.</div>
+                        <div class="invalid-user-role">Please select a user role.</div>
                     </div>
 
                     <div class="mb-3">
@@ -258,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <button type="submit" name="submit" class="btn btn-primary">Add User</button>
-                    <a href="view_user.php" class="btn btn-secondary">Cancel</a>
+                    <a href="user_management.php" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
         </div>
