@@ -9,31 +9,49 @@ if ($_SESSION["role"] != "administrator") {
     exit;
 }
 
-// handling all form submissions before the html code
+// Handle all form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Add new user logic
     if (isset($_POST['submit'])) {
+        $errors = [];
         $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
 
         // Check if any required fields are empty
         foreach ($required as $field) {
             if (empty($_POST[$field])) {
-                die("Error: $field is required");
+                $errors[] = "$field is required";
             }
         }
 
-        // Confirm passwords match
-        if ($_POST['password'] !== $_POST['confirm_password']) {
-            die("Error: Passwords do not match");
+        // Validate email format
+        if (!empty($_POST['email']) && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format";
         }
-        // sanitizing and validating inputs (to avoid sql injection)
+
+        // Validate password strength
+        if (!empty($_POST['password']) && strlen($_POST['password']) < 8) {
+            $errors[] = "Password must be at least 8 characters";
+        }
+
+        // Confirm passwords match
+        if (!empty($_POST['password']) && !empty($_POST['confirm_password']) && 
+            $_POST['password'] !== $_POST['confirm_password']) {
+            $errors[] = "Passwords do not match";
+        }
+
+        // If there are errors, display them
+        if (!empty($errors)) {
+            $error_message = "Error: " . implode(", ", $errors);
+            die($error_message);
+        }
+
         $username = $mysqli->real_escape_string(trim($_POST['username']));
         $email = $mysqli->real_escape_string(trim($_POST['email']));
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
         $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        // getting role ID from the database
+        // Get role ID
         $role_name = $mysqli->real_escape_string(trim($_POST['role']));
         $role_query = "SELECT user_role_ID FROM user_role WHERE role = ? LIMIT 1";
         $role_stmt = $mysqli->prepare($role_query);
@@ -41,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role_stmt->execute();
         $role_result = $role_stmt->get_result();
 
-        // checking if the role exists
+        // Check if the role exists
         if ($role_result->num_rows === 0) {
             die("Error: Invalid role selected");
         }
@@ -49,17 +67,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role_row = $role_result->fetch_assoc();
         $role_id = $role_row['user_role_ID'];
 
-        // checking if the username is unique
-        $check_query = "SELECT username FROM user WHERE username = '$username' LIMIT 1";
-        $check_result = $mysqli->query($check_query);
+        // Check if username already exists
+        $check_query = "SELECT username FROM user WHERE username = ? LIMIT 1";
+        $check_stmt = $mysqli->prepare($check_query);
+        $check_stmt->bind_param("s", $username);
+        $check_stmt->execute();
+        $check_result = $check_stmt->get_result();
         if ($check_result && $check_result->num_rows > 0) {
             die("Error: Username already exists");
         }
 
-        // inserting the new user
+        // Check if email already exists
+        $email_check_query = "SELECT email FROM user WHERE email = ? LIMIT 1";
+        $email_check_stmt = $mysqli->prepare($email_check_query);
+        $email_check_stmt->bind_param("s", $email);
+        $email_check_stmt->execute();
+        $email_check_result = $email_check_stmt->get_result();
+        if ($email_check_result && $email_check_result->num_rows > 0) {
+            die("Error: Email already exists");
+        }
+
+        // Insert new user
         $query = "INSERT INTO user (username, password, email, first_name, last_name, user_role_ID)
                   VALUES (?, ?, ?, ?, ?, ?)";
-        // using a statement. prepare statement prepares the sql statement for execution
+
         $stmt = $mysqli->prepare($query);
         if (!$stmt) {
             die("Prepare failed: " . $mysqli->error);
@@ -74,16 +105,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Error creating user: " . $stmt->error);
         }
     }
-    
-    // editing user logic
+    // Edit user logic
     elseif (isset($_POST['edit_user'])) {
+        
         $user_id = intval($_POST['user_id']);
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
         $last_name = $mysqli->real_escape_string(trim($_POST['last_name']));
         $email = $mysqli->real_escape_string(trim($_POST['email']));
         $username = $mysqli->real_escape_string(trim($_POST['username']));
 
-        // checking email uniqueness
+        // Check email uniqueness
         $email_check = $mysqli->prepare("SELECT user_id FROM user WHERE email = ? AND user_id != ?");
         $email_check->bind_param("si", $email, $user_id);
         $email_check->execute();
@@ -156,9 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- Success messages with bootstrap modal popup -->
+<!-- Success messages -->
 <?php if (isset($_GET['success'])): ?>
-    <!-- bootstrap Success Modal -->
+    <!-- Success Modal -->
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -185,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- the js for popup -->
+    <!-- showing the success message -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const successModal = new bootstrap.Modal(document.getElementById('successModal'));
@@ -200,6 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="button" class="btn btn-lg btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
+<<<<<<< HEAD
         <!-- offcanvas header -->
         <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
             <div class="offcanvas-header">
@@ -277,8 +309,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
         </div>
+=======
+ 
+>>>>>>> 9c72d3d9d8283ae47e2b3f8c5af15462c8ec8e92
     </div>
+    <div class="offcanvas-body">
+        <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
+            <div class="mb-3 text-muted small">
+                <span class="text-danger">*</span> Required field
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
+                    <div class="invalid-feedback">Please provide a valid first name (letters only).</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
+                    <div class="invalid-feedback">Please provide a valid last name (letters only).</div>
+                </div>
+            </div>
 
+            <div class="mb-3">
+                <label for="role" class="form-label">User Role <span class="text-danger">*</span></label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="" selected disabled>Select role</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Responder">Responder</option>
+                    <option value="Reporter">Reporter</option>
+                </select>
+                <div class="invalid-feedback">Please select a user role.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                <input type="text" id="username" name="username" class="form-control" required pattern="[A-Za-z0-9_]+" minlength="4" maxlength="30">
+                <div class="invalid-feedback">Username must be 4-30 characters (letters, numbers, underscores only).</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" id="email" name="email" class="form-control" required maxlength="100">
+                <div class="invalid-feedback">Please provide a valid email.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" id="password" name="password" class="form-control" required minlength="8" maxlength="100">
+                    <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                    <small class="form-text text-muted">Minimum 8 characters</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8" maxlength="100">
+                    <div class="invalid-feedback">Passwords must match.</div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" name="submit" class="btn btn-primary">Add User</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
     <div class="row mb-3 border">
         <!-- Users Table -->
         <div class="mt-4">
@@ -343,26 +440,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div class="mb-3">
                                             <label class="form-label">Username</label>
                                             <input type="text" name="username" class="form-control" 
-                                                   value="<?= htmlspecialchars($user['username']) ?>" required>
+                                                   value="<?= htmlspecialchars($user['username']) ?>" required pattern="[A-Za-z0-9_]+" minlength="4" maxlength="30">
+                                            <div class="invalid-feedback">Username must be 4-30 characters (letters, numbers, underscores only).</div>
                                         </div>
                                         
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">First Name</label>
                                                 <input type="text" name="first_name" class="form-control" 
-                                                       value="<?= htmlspecialchars($user['first_name']) ?>" required>
+                                                       value="<?= htmlspecialchars($user['first_name']) ?>" required pattern="[A-Za-z\s]+" maxlength="50">
+                                                <div class="invalid-feedback">Please provide a valid first name (letters only).</div>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Last Name</label>
                                                 <input type="text" name="last_name" class="form-control" 
-                                                       value="<?= htmlspecialchars($user['last_name']) ?>" required>
+                                                       value="<?= htmlspecialchars($user['last_name']) ?>" required pattern="[A-Za-z\s]+" maxlength="50">
+                                                <div class="invalid-feedback">Please provide a valid last name (letters only).</div>
                                             </div>
                                         </div>
                                         
                                         <div class="mb-3">
                                             <label class="form-label">Email</label>
                                             <input type="email" name="email" class="form-control" 
-                                                   value="<?= htmlspecialchars($user['email']) ?>" required>
+                                                   value="<?= htmlspecialchars($user['email']) ?>" required maxlength="100">
+                                            <div class="invalid-feedback">Please provide a valid email.</div>
                                         </div>
                                         
                                         <div class="mb-3">
@@ -382,11 +483,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <div id="passwordFields_<?= $row['user_id'] ?>" style="display: none;">
                                             <div class="mb-3">
                                                 <label class="form-label">New Password</label>
-                                                <input type="password" name="new_password" class="form-control" minlength="8">
+                                                <input type="password" name="new_password" class="form-control" minlength="8" maxlength="100">
+                                                <div class="invalid-feedback">Password must be at least 8 characters.</div>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label">Confirm Password</label>
-                                                <input type="password" name="confirm_password" class="form-control">
+                                                <input type="password" name="confirm_password" class="form-control" minlength="8" maxlength="100">
+                                                <div class="invalid-feedback">Passwords must match.</div>
                                             </div>
                                         </div>
                                         
@@ -396,7 +499,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </div>
                             </div>
                             
-                            <a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                            <a href="delete_user.php?id=<?= $row['user_id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user?')">Delete</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -418,8 +521,76 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+<<<<<<< HEAD
+=======
+
+    // Existing offcanvas handler
+    document.addEventListener('click', function(event) {
+        if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+                offcanvas.show();
+            }
+        }
+    });
+
+    // Form validation
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    // Custom password confirmation validation
+                    const password = form.querySelector('[name="password"], [name="new_password"]');
+                    const confirmPassword = form.querySelector('[name="confirm_password"]');
+                    
+                    if (password && confirmPassword && password.value !== confirmPassword.value) {
+                        confirmPassword.setCustomValidity("Passwords must match");
+                        confirmPassword.classList.add('is-invalid');
+                    } else if (confirmPassword) {
+                        confirmPassword.setCustomValidity("");
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+
+        // Password confirmation live validation
+        document.addEventListener('input', function(e) {
+            if (e.target.name === 'password' || e.target.name === 'new_password' || e.target.name === 'confirm_password') {
+                const form = e.target.closest('form');
+                if (form) {
+                    const password = form.querySelector('[name="password"], [name="new_password"]');
+                    const confirmPassword = form.querySelector('[name="confirm_password"]');
+                    
+                    if (password && confirmPassword) {
+                        if (password.value !== confirmPassword.value) {
+                            confirmPassword.setCustomValidity("Passwords must match");
+                            confirmPassword.classList.add('is-invalid');
+                        } else {
+                            confirmPassword.setCustomValidity("");
+                            confirmPassword.classList.remove('is-invalid');
+                        }
+                    }
+                }
+            }
+        });
+    })()
+>>>>>>> 9c72d3d9d8283ae47e2b3f8c5af15462c8ec8e92
 });
 </script>
 
-<?php echo $footer;
-ob_end_flush(); ?>
+<?php echo $footer; 
+ob_end_flush();?>
