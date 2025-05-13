@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="offcanvas-body">
         <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
             <div class="mb-3 text-muted small">
-                <span class="text-danger">*</span> indicates required field
+                <span class="text-danger">*</span> Required field
             </div>
             
             <div class="row">
