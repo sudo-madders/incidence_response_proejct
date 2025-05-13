@@ -2,8 +2,8 @@
 include("template.php");
 ?>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
 
       // Load the Visualization API and the corechart package.
       google.charts.load('current', {'packages':['corechart']});
@@ -52,10 +52,9 @@ include("template.php");
     </script>
 
 <div class="col m-auto">
-	<div class="row´ my-3 align-items-center">
+	<div class="row┬┤ my-3 align-items-center">
     <!--Div that will hold the pie chart-->
     <div id="chart_div" class="m-auto bg-secondary-mono" style="height: 600px; width: 600px;"></div>
-</div>
 </div>
 <?php
 echo $footer;

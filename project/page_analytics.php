@@ -82,7 +82,7 @@ require_once("template.php");
 			</tbody>
 		</table>
 	</div>
-</div>
+
 <script>
 $(document).ready(function() {
     $('#userTable').DataTable({

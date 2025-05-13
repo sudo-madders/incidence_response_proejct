@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="col">
     <div class="row mb-3 border">
         <!-- add new user button -->
-        <button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-lg btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
         <!-- offcanvas header -->
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- offcanvas body -->
             <div class="offcanvas-body">
-                <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
+                <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation">
                     
                     <div class="mb-3 text-muted small">
                         <span class="text-danger">*</span> Required fields
@@ -367,7 +367,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         
                                         <div class="mb-3">
                                             <label class="form-label">Role</label>
-                                            <select class="form-select" name="role" required>
+                                            <select class="form-select" name="role">
                                                 <option value="Administrator" <?= $row['role'] == 'Administrator' ? 'selected' : '' ?>>Administrator</option>
                                                 <option value="Reporter" <?= $row['role'] == 'Reporter' ? 'selected' : '' ?>>Reporter</option>
                                                 <option value="Responder" <?= $row['role'] == 'Responder' ? 'selected' : '' ?>>Responder</option>
@@ -404,7 +404,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </table>
         </div>
     </div>
-</div>
+
 
 <script>
 // Toggle password fields when checkbox is clicked
@@ -417,18 +417,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 passwordFields.style.display = this.checked ? 'block' : 'none';
             }
         });
-    });
-
-    // offcanvas handler
-    document.addEventListener('click', function(event) {
-        if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
-            const targetId = event.target.getAttribute('data-bs-target');
-            const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
-            if (offcanvasElement) {
-                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
-                offcanvas.show();
-            }
-        }
     });
 });
 </script>

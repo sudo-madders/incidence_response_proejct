@@ -553,9 +553,9 @@ if ($incident_result && $incident_result->num_rows > 0) {
 						</button>
 						
 						<!-- Offcanvas, More selection -->
-						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
+						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="IncidentLabel_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							<div class="offcanvas-header">
-								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
+								<h3 class="offcanvas-title text-primary-mono fw-bold" id="IncidentLabel_<?= htmlspecialchars($incident['incident_ID']) ?>">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
 							<div class="offcanvas-body ">
@@ -591,8 +591,8 @@ if ($incident_result && $incident_result->num_rows > 0) {
 										<form method="post" action="incident_dashboard.php" enctype="multipart/form-data">
 											<div class="row mb-3">
 												<div class="col">
-													<label for="evidence" class="form-label">Upload evidence</label>
-													<input class="form-control" type="file" name="evidence" id="evidence required">
+													<label for="evidence_<?= $incident['incident_ID']?>" class="form-label">Upload evidence</label>
+													<input class="form-control" type="file" name="evidence" id="evidence_<?= $incident['incident_ID']?>" required>
 												</div>
 											</div>
 											<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
@@ -647,7 +647,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 														
 															<td><?= htmlspecialchars($evidence['username'] ?? '') ?></td>
 														
-															<td><a href="uploads/<?= htmlspecialchars($evidence['path'] ?? '') ?>"><?= htmlspecialchars($evidence['path'] ?? '') ?></td>
+															<td><a href="uploads/<?= htmlspecialchars($evidence['path'] ?? '') ?>"><?= htmlspecialchars($evidence['path'] ?? '') ?></a></td>
 														</tr>
 													<?php endforeach; ?>
 												</tbody>
@@ -661,14 +661,14 @@ if ($incident_result && $incident_result->num_rows > 0) {
 						</div>
                     </td>
 					<td>
-						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
+						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Show events
 						</button>
 						
 						<!-- Offcanvas, More selection -->
-						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="addNewIncidentLabel">
+						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-labelledby="incidentLabel_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							<div class="offcanvas-header">
-								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
+								<h3 class="offcanvas-title text-primary-mono fw-bold" id="incidentLabel_<?= htmlspecialchars($incident['incident_ID']) ?>">Incident <?= htmlspecialchars($incident['incident_ID']) ?></h3>
 								<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 							</div>
 							<div class="offcanvas-body">
