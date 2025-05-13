@@ -248,7 +248,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 							<div class="row mb-3">
 								<div class="col">
 									<label for="comment_{$row['incident_ID']}" class="form-label">Comment</label>
-									<textarea class="form-control" name="comment" id="comment_{$row['incident_ID']}" rows="3"></textarea>
+									<textarea class="form-control" name="comment" id="comment_{$row['incident_ID']}" rows="3" required></textarea>
 								</div>
 							</div>
 							<input type="hidden" name="incident_ID" value="{$row['incident_ID']}">

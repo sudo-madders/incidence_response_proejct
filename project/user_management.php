@@ -231,8 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <button type="button" class="btn btn-lg btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
-<<<<<<< HEAD
-        <!-- offcanvas header -->
+
         <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="addNewUserLabel">Add new user</h5>
@@ -309,73 +308,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
             </div>
         </div>
-=======
- 
->>>>>>> 9c72d3d9d8283ae47e2b3f8c5af15462c8ec8e92
     </div>
-    <div class="offcanvas-body">
-        <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
-            <div class="mb-3 text-muted small">
-                <span class="text-danger">*</span> Required field
-            </div>
-            
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
-                    <div class="invalid-feedback">Please provide a valid first name (letters only).</div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
-                    <div class="invalid-feedback">Please provide a valid last name (letters only).</div>
-                </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="role" class="form-label">User Role <span class="text-danger">*</span></label>
-                <select class="form-select" id="role" name="role" required>
-                    <option value="" selected disabled>Select role</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Responder">Responder</option>
-                    <option value="Reporter">Reporter</option>
-                </select>
-                <div class="invalid-feedback">Please select a user role.</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
-                <input type="text" id="username" name="username" class="form-control" required pattern="[A-Za-z0-9_]+" minlength="4" maxlength="30">
-                <div class="invalid-feedback">Username must be 4-30 characters (letters, numbers, underscores only).</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                <input type="email" id="email" name="email" class="form-control" required maxlength="100">
-                <div class="invalid-feedback">Please provide a valid email.</div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                    <input type="password" id="password" name="password" class="form-control" required minlength="8" maxlength="100">
-                    <div class="invalid-feedback">Password must be at least 8 characters.</div>
-                    <small class="form-text text-muted">Minimum 8 characters</small>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8" maxlength="100">
-                    <div class="invalid-feedback">Passwords must match.</div>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <button type="submit" name="submit" class="btn btn-primary">Add User</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
     <div class="row mb-3 border">
         <!-- Users Table -->
         <div class="mt-4">
@@ -521,8 +454,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-<<<<<<< HEAD
-=======
 
     // Existing offcanvas handler
     document.addEventListener('click', function(event) {
