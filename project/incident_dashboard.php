@@ -175,6 +175,48 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 				<!-- Main content -->
 				<div class="col mt-1">
 					<div class="row mb-3">
+						<div class="col">
+							<?php 
+								$query = "SELECT s.severity as severity, s.severity_ID, COUNT(*) as 'count' FROM incident i
+								JOIN severity s ON s.severity_ID = i.severity_ID
+								GROUP BY severity
+								ORDER BY s.severity_ID DESC";
+								$result = $mysqli->query($query);
+								
+								
+							?>
+							
+							<?php while ($row = $result->fetch_assoc()): ?>
+							<p class="mb-0 <?= ($row['severity'] == "Critical") ? 'text-danger' : '' ?>">
+								<?= htmlspecialchars($row['severity']) ?>
+							
+								:<?= htmlspecialchars($row['count']) ?>
+							</p>
+							<?php endwhile; ?>
+						</div>
+					
+					
+						<div class="col">
+							<?php 
+								$query = "SELECT s.status, count(*) as 'count'
+								FROM incident_status i_s
+								JOIN status s ON i_s.status_ID = s.status_ID
+								JOIN incident i on i_s.incident_ID = i.incident_ID
+								GROUP BY s.status";
+								$result = $mysqli->query($query);
+							?>
+							
+							
+							<?php while ($row = $result->fetch_assoc()): ?>
+							<p class="mb-0 <?= ($row['status'] == "Resolved") ? 'text-success' : '' ?>">
+								<?= htmlspecialchars($row['status']) ?>
+							
+								:<?= htmlspecialchars($row['count']) ?>
+							</p>
+							<?php endwhile; ?>
+						</div>
+					</div>
+					<div class="row mb-3">
 						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
 						Add new incident
 						</button>
@@ -191,7 +233,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 										<div class="col-md-6">
 											<label for="incident_type" class="form-label">Incident Type</label>
 											<select class="form-select" name="incident_type" required>
-												<option selected disabled>Choose incident type</option>
+												<option value="" selected disabled>Choose incident type</option>
 												<?php
 												$query = "SELECT incident_type FROM incident_type";
 												$result = $mysqli->query($query);
@@ -224,7 +266,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 										<div class="col-md-6">
 											<label for="severity" class="form-label">Severity</label>
 											<select class="form-select" name="severity" required>
-												<option selected disabled>Choose severity</option>
+												<option value="" selected disabled>Choose severity</option>
 												<option value="Low">Low</option>
 												<option value="Medium">Medium</option>
 												<option value="High">High</option>
@@ -670,6 +712,15 @@ $(document).ready(function() {
             console.error('Error:', error.responseText);
             alert('Failed to update status.');
         });
+    });
+	
+	$('#checkBtn').click(function() {
+        checked = $("input[type=checkbox]:checked").length;
+
+        if(!checked) {
+            alert("You must check at least one checkbox.");
+            return false;
+        }
     });
 });
 </script>
