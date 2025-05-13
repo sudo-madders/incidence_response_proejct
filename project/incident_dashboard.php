@@ -7,7 +7,7 @@ if (isset($_FILES['evidence'])) {
 	$allowed_types = ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"];
 	
 	if (!in_array($file["type"], $allowed_types)) {
-		echo "Error: File not allowd" . PHP_EOL;
+		echo "Error: File not allowed" . PHP_EOL;
 		echo "Type: " . $file['type'];
 		exit;
 	}
@@ -61,15 +61,40 @@ if (isset($_FILES['evidence'])) {
 * the table incident_status. With the incident_status_ID
 * it will then insert the comment into the comment-table.
 */
+
 if (isset($_POST['comment'], $_POST['incident_ID'])) {
-	$comment = $mysqli->real_escape_string($_POST['comment']);
-	$incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
-	
+	$comment = trim($_POST['comment']);  
+	$incident_ID = trim($_POST['incident_ID']);
+
+	// Initialize an errors array to collect validation errors
+	$errors = [];
+
+	// Validation for comment field
+	if (empty($comment)) {
+		$errors[] = "Comment cannot be empty.";
+	} elseif (strlen($comment) > 1000) {  
+		$errors[] = "Comment cannot exceed 1000 characters.";
+	}
+
+	// Validate incident_ID (should be numeric)
+	if (!is_numeric($incident_ID)) {
+		$errors[] = "Invalid incident ID.";
+	}
+
+	// If there are validation errors, stop execution
+	if (count($errors) > 0) {
+		exit; // Optionally, you could send a response with errors
+	}
+
+	// If validation passed, proceed to the database operations
+	$comment = $mysqli->real_escape_string($comment);
+	$incident_ID = $mysqli->real_escape_string($incident_ID);
+
 	$query = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}'";
 	$result = $mysqli->query($query);
 	$status_row = $result->fetch_assoc();
 	$status_ID = $status_row['status_ID'];
-	
+
 	$query = "
 		INSERT INTO incident_status (status_ID, incident_ID, user_ID)
 		VALUES (?,?,?)";
@@ -101,17 +126,42 @@ if (isset($_POST['comment'], $_POST['incident_ID'])) {
 * it will then insert the comment into the comment-table.
 */
 if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
-    $incident_type = $mysqli->real_escape_string($_POST['incident_type']);
-    $severity = $mysqli->real_escape_string($_POST['severity']);
-    $description = $mysqli->real_escape_string($_POST['description']);
-	$created = $mysqli->real_escape_string($_POST['created']);
+    
+    $incident_type = trim($_POST['incident_type']);
+    $severity = trim($_POST['severity']);
+    $description = trim($_POST['description']);
+    $created = $mysqli->real_escape_string($_POST['created']);
+
+    
+    $errors = [];
+
+    if (empty($incident_type)) {
+        $errors[] = "Incident type cannot be empty.";
+    }
+    if (empty($severity)) {
+        $errors[] = "Severity cannot be empty.";
+    }
+    if (empty($description)) {
+        $errors[] = "Description cannot be empty.";
+    }
+
+    
+    if (count($errors) > 0) {
+        exit; 
+    }
+
+    
+    $incident_type = $mysqli->real_escape_string($incident_type);
+    $severity = $mysqli->real_escape_string($severity);
+    $description = $mysqli->real_escape_string($description);
+    
     $query = "
         INSERT INTO incident (incident_type_ID, severity_ID, description, created) 
         VALUES (
             (SELECT incident_type_ID FROM incident_type WHERE incident_type = ?),
             (SELECT severity_ID FROM severity WHERE severity = ?),
             ?,
-			?
+            ?
         )";
 
     if ($stmt = $mysqli->prepare($query)) {
@@ -127,16 +177,14 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 			
 			$status_query = "
 				INSERT INTO incident_status (incident_ID, user_ID, status_ID)
-				VALUES (?,?,?)
-				";
+				VALUES (?,?,?);
+			";
 			$user_ID = $_SESSION['user_ID'];
 			
 			if ($status_stmt = $mysqli->prepare($status_query)) {
                 $status_stmt->bind_param("iii", $incident_id, $user_ID, $status_ID);
 				
-				 if ($status_stmt->execute()) {
-                    
-                } else {
+				 if (!$status_stmt->execute()) {
                     die("Error: Could not insert incident status: " . $status_stmt->error);
                 }
             }
@@ -172,6 +220,8 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     }
 }
 ?>
+
+
 				<!-- Main content -->
 				<div class="col mt-1">
 					<div class="row mb-3">
