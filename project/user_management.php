@@ -519,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     })()
->>>>>>> 9c72d3d9d8283ae47e2b3f8c5af15462c8ec8e92
+
 });
 </script>
 
