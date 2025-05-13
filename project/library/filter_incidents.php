@@ -2,6 +2,10 @@
 session_name('project');
 session_start();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include_once("database.php");
 include_once("loging.php");
 
@@ -52,31 +56,81 @@ logError($query);
 if ($incident_result && $incident_result->num_rows > 0) {
 	$incidents = [];
 	while ($row = $incident_result->fetch_assoc()) {
-		$query = "SELECT i_status_ID, u.username, timestamp FROM incident_status i_s 
+	
+		/*Get all the assets associated with an incident*/
+		$assets = [];
+		$asset_query = "SELECT a.asset
+						FROM all_incidents ai
+						JOIN affected_assets aa ON ai.incident_ID = aa.incident_ID
+						JOIN asset a ON aa.asset_ID = a.asset_ID
+						WHERE ai.incident_ID = " . $row['incident_ID'] . "";
+		
+		$asset_result = $mysqli->query($asset_query);
+		if ($asset_result && $asset_result->num_rows > 0) {
+			while ($asset_row = $asset_result->fetch_assoc()) {
+				$assets[] = $asset_row['asset'];
+			}
+		}
+		$query = "SELECT i_status_ID, u.username, timestamp, s.status FROM incident_status i_s 
 		JOIN user u ON u.user_ID = i_s.user_ID
+		JOIN status s ON i_s.status_ID = s.status_ID
 		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
+		
+		$result = $mysqli->query($query);
+		
+		if (!($result && $result->num_rows > 0)) {
+			$query = "SELECT i_status_ID, timestamp, s.status FROM incident_status i_s
+			JOIN status s ON i_s.status_ID = s.status_ID
+			WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
+		} else {
+			$query = "SELECT i_status_ID, u.username, timestamp, s.status FROM incident_status i_s 
+		JOIN user u ON u.user_ID = i_s.user_ID
+		JOIN status s ON i_s.status_ID = s.status_ID
+		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
+		}
 		
 		$result = $mysqli->query($query);
 		$comments = [];
 		$evidences = [];
+		$events = [];
+		$created = [];
+		$created['assets'] = $assets;
 		if ($result && $result->num_rows > 0) {
+			$first = True;
 			while ($i_status_ID_row = $result->fetch_assoc()) {
-				//This section of the code get the comment from a certain incident_status_ID
-				$query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				/*This section of the code get the comment from a certain incident_status_ID*/
+				$comment_query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$comment_result = $mysqli->query($comment_query);
 				
-				$comment_result = $mysqli->query($query);
+				if ($first) {
+					$status_changed = [];
+					if (isset($i_status_ID_row['username'])) {
+						$status_changed['username'] = $i_status_ID_row['username'];
+						$created['username'] = $i_status_ID_row['username'];
+					} else {
+						$status_changed['username'] = "Unknown";
+						$created['username'] = "Unknown";
+					}
+					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
+					$status_changed['status'] = $i_status_ID_row['status'];
+					$status_changed['type'] = "Incident created";
+					$events[] = $status_changed;
+					$first = False;
+					$created['timestamp'] = $row['created'];
+				}
+				$evidence_query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$evidence_result = $mysqli->query($evidence_query);
+				
 				if ($comment_result && $comment_result->num_rows > 0) {
 					$comment = [];
 					$comment_text = $comment_result->fetch_assoc();
 					$comment['text'] = $comment_text['comment'];
 					$comment['timestamp'] = $i_status_ID_row['timestamp'];
-					$comment['username'] = $i_status_ID_row['username'];
+					$comment['username'] = $i_status_ID_row['username'] ?? 'Unknown';
 					$comments[] = $comment;
-				}
-				//This section of the code gets the evidence
-				$query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
-				$evidence_result = $mysqli->query($query);
-				if ($evidence_result && $evidence_result->num_rows > 0) {
+					$comment['type'] = "Comment -> {$comment['text']}";
+					$events[] = $comment;
+				} elseif ($evidence_result && $evidence_result->num_rows > 0) {
 					$evidence_data = [];
 					$evidence_result = $evidence_result->fetch_assoc();
 					$path_array = explode("/", $evidence_result['path']);
@@ -84,6 +138,15 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$evidence_data['timestamp'] = $i_status_ID_row['timestamp'];
 					$evidence_data['username'] = $i_status_ID_row['username'];
 					$evidences[] = $evidence_data;
+					$evidence_data['type'] = "Evidence -> {$evidence_data['path']}";
+					$events[] = $evidence_data;
+				} else {
+					$status_changed = [];
+					$status_changed['username'] = $i_status_ID_row['username'] ?? 'Unknown';
+					$status_changed['timestamp'] = $i_status_ID_row['timestamp'];
+					$status_changed['status'] = $i_status_ID_row['status'];
+					$status_changed['type'] = "Status change -> {$i_status_ID_row['status']}";
+					$events[] = $status_changed;
 				}
 			}
 		}
@@ -140,8 +203,34 @@ if ($incident_result && $incident_result->num_rows > 0) {
 			$evidence_html = '<p>No evidence yet.</p>';
 		}
 		
+		$events_html = '';
+		if (!empty($events)) {
+			$events_html = '
+				<table class="table table-striped table-bordered">
+					<thead class="table-light">
+						<tr>
+							<th>Timestamp</th>
+							<th>User</th>
+							<th>Type</th>
+						</tr>
+					</thead>
+					<tbody>';
+			
+			foreach ($events as $event) {
+				$events_html .= '<tr>
+					<td>'.htmlspecialchars($event['timestamp'] ?? '').'</td>
+					<td>'.htmlspecialchars($event['username'] ?? '').'</td>
+					<td>'.htmlspecialchars($event['type'] ?? '').'</td>
+				</tr>';
+			}
+			
+			$events_html .= '</tbody></table>';
+		} else {
+			$events_html = '<p>No comments yet.</p>';
+		}
+		
 		$edit = <<<END
-		<button type="button" class="btn btn-secondary mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
+		<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
 			Edit
 		</button>
 		
@@ -193,6 +282,23 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		</div>
 END;
 
+		$event = <<<END
+		<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
+			Show events
+		</button>
+		
+		<!-- Offcanvas, More selection -->
+		<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="incident_event_{$row['incident_ID']}" aria-labelledby="addNewIncidentLabel">
+			<div class="offcanvas-header">
+				<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Incident {$row['incident_ID']}</h3>
+				<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			</div>
+			<div class="offcanvas-body">
+				{$events_html}
+			</div>
+		</div>
+		END;
+
 		$select = '<select class="form-select" name="status" id="select_' . $row['incident_ID'] . '">';
 		$pending = '';
 		$in_progress = '';
@@ -211,8 +317,10 @@ END;
 			<option {$resolved} value="Resolved">Resolved</option>
 		</select>
 		END;
+		$row['occurred'] = $row['created']['timestamp'] ?? 'Unknown';
 		$row['select'] = $select;
 		$row["edit"] = $edit;
+		$row['event'] = $event;
 		$incidents[] = $row;
 	}
 }

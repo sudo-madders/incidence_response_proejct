@@ -215,6 +215,24 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							</p>
 							<?php endwhile; ?>
 						</div>
+						<div class="col">
+							<?php 
+								$query = "SELECT COUNT(*) as 'count'
+								FROM (
+									SELECT
+										incident_ID,
+										MIN(timestamp) AS latest_timestamp
+									FROM incident_status
+									GROUP BY incident_ID
+								) AS subquery_count;";
+								$result = $mysqli->query($query);
+								$row = $result->fetch_assoc()
+							?>
+							<h4>
+								Incidents added last 3 days: <?= $row['count'] ?>
+							</h4>
+						</div>
+					
 					</div>
 					<div class="row mb-3">
 						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
@@ -355,8 +373,6 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		$events = [];
 		$created = [];
 		$created['assets'] = $assets;
-		
-		
 		$result = $mysqli->query($query);
 		
 		if (!($result && $result->num_rows > 0)) {
@@ -446,6 +462,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 				<th>Occurred</th>
 				<th>Status</th>
                 <th>Actions</th>
+				<th>Events</th>
             </tr>
         </thead>
         <tbody>
@@ -591,6 +608,8 @@ if ($incident_result && $incident_result->num_rows > 0) {
 								</div>
 							</div>
 						</div>
+                    </td>
+					<td>
 						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
 							Show events
 						</button>
@@ -628,7 +647,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 								<?php endif; ?>
 							</div>
 						</div>
-                    </td>
+					</td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
@@ -684,8 +703,10 @@ $(document).ready(function() {
             $newRow.append($('<td>').text(row.description));
             $newRow.append($('<td>').text(row.incident_type));
             $newRow.append($('<td>').text(row.severity));
+			$newRow.append($('<td>').text(row.occurred));
             $newRow.append($('<td>').html(row.select));
             $newRow.append($('<td>').html(row.edit));
+			$newRow.append($('<td>').html(row.event));
             
             $tableBody.append($newRow);
         });
