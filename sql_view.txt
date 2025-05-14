@@ -42,7 +42,7 @@ JOIN incident_type it ON i.incident_type_ID = it.incident_type_ID
 JOIN severity sv ON i.severity_ID = sv.severity_ID
 JOIN incident_status ist ON i.incident_ID = ist.incident_ID
 JOIN status s ON ist.status_ID = s.status_ID
-WHERE ist.timestamp = (SELECT MIN(timestamp) FROM incident_status WHERE incident_ID = i.incident_ID)
+WHERE ist.timestamp = (SELECT MAX(timestamp) FROM incident_status WHERE incident_ID = i.incident_ID)
 ORDER BY i.incident_ID DESC
 
 
@@ -50,6 +50,7 @@ CREATE VIEW reporter_incident AS
 SELECT 
     i.incident_ID,
     i.description,
+    i.created,
     it.incident_type,
     sv.severity,
     s.status,
@@ -76,3 +77,19 @@ JOIN (
 ) ist ON i.incident_ID = ist.incident_ID
 JOIN status s ON ist.status_ID = s.status_ID
 JOIN user u ON ist.user_ID = u.user_ID
+
+
+
+CREATE VIEW all_incidents AS
+SELECT i.incident_ID, it.incident_type, sv.severity, i.description, i.created, s.status, ist.user_ID
+FROM incident i
+JOIN incident_type it ON i.incident_type_ID = it.incident_type_ID
+JOIN severity sv ON i.severity_ID = sv.severity_ID
+JOIN incident_status ist ON i.incident_ID = ist.incident_ID
+JOIN status s ON ist.status_ID = s.status_ID
+WHERE (ist.timestamp, ist.i_status_ID) IN (
+    SELECT MAX(timestamp), MAX(i_status_ID)
+    FROM incident_status
+    GROUP BY incident_ID
+)
+ORDER BY i.incident_ID DESC;

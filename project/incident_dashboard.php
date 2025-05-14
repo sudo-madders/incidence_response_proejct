@@ -2,57 +2,71 @@
 include_once("template.php");
 include_once('library/database.php');
 
-if (isset($_FILES['evidence'])) {
-	$file = $_FILES['evidence'];
-	$allowed_types = ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"];
-	
-	if (!in_array($file["type"], $allowed_types)) {
-		echo "Error: File not allowed" . PHP_EOL;
-		echo "Type: " . $file['type'];
-		exit;
-	}
-	
-	if ($file['size'] > 5000000) {
-		echo "Error: File too large";
-		exit;
-	}
-	$file_name = basename($file['name']);
-	$dir = "uploads/";
-	
-	$full_name = $dir . $file_name;
-	
-	if (move_uploaded_file($file['tmp_name'], $full_name)) {
-		$incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
-		$query = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}'";
-		$result = $mysqli->query($query);
-		$status_row = $result->fetch_assoc();
-		$status_ID = $status_row['status_ID'];
-		
-		$query = "
-			INSERT INTO incident_status (status_ID, incident_ID, user_ID)
-			VALUES (?,?,?)";
-		if ($stmt = $mysqli->prepare($query)) {
-			$stmt->bind_param("sss", $status_ID, $incident_ID, $_SESSION['user_ID']);
-			logError($stmt->error);
-			
-			if ($stmt->execute()) {
-				$i_status_ID = $mysqli->insert_id;
-				$query = "INSERT INTO evidence (i_status_ID, path) VALUES (?,?)";
-				
-				if ($stmt = $mysqli->prepare($query)) {
-					$stmt->bind_param("ss", $i_status_ID, $full_name);
-					logError($stmt->error);
-					if (!$stmt->execute()) {
-						echo "failed to insert file path";
-					}
-				}
-			} else {
-				echo "Failed to insert into incident_status";
-			}
-		}
-	} else {
-		echo "Upload failed";
-	}
+if (isset($_FILES['files'])) {
+    $allowed_types = ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"];
+    $upload_dir = "uploads/";
+    $incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
+
+    $total_files = count($_FILES['files']['name']);
+
+    for ($i = 0; $i < $total_files; $i++) {
+        $file_name = basename($_FILES['files']['name'][$i]);
+        $file_tmp = $_FILES['files']['tmp_name'][$i];
+        $file_type = $_FILES['files']['type'][$i];
+        $file_size = $_FILES['files']['size'][$i];
+        $file_error = $_FILES['files']['error'][$i];
+        $full_path = $upload_dir . $file_name;
+
+        if ($file_error === UPLOAD_ERR_OK) {
+            if (!in_array($file_type, $allowed_types)) {
+                logError("Error: File '$file_name' is not allowed (type: $file_type).");
+                continue; // Skip to the next file
+            }
+
+            if ($file_size > 5000000) {
+                echo "Error: File '$file_name' is too large." . PHP_EOL;
+                continue; // Skip to the next file
+            }
+
+            if (move_uploaded_file($file_tmp, $full_path)) {
+                // File uploaded successfully, now record it in the database
+
+                // First, get the current status_ID for the incident
+                $query_select_status = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}' ORDER BY status_ID DESC LIMIT 1";
+                $result = $mysqli->query($query_select_status);
+                $status_row = $result->fetch_assoc();
+                $status_ID = $status_row ? $status_row['status_ID'] : null;
+
+                // Insert a new entry into incident_status
+                $query_insert_status = "
+                    INSERT INTO incident_status (status_ID, incident_ID, user_ID)
+					VALUES (?,?,?)";
+                if ($stmt_insert_status = $mysqli->prepare($query_insert_status)) {
+                    $stmt_insert_status->bind_param("sss", $status_ID, $incident_ID, $_SESSION['user_ID']);
+                    if ($stmt_insert_status->execute()) {
+                        $i_status_ID = $mysqli->insert_id;
+                        // Insert the evidence path
+                        $query_insert_evidence = "INSERT INTO evidence (i_status_ID, path) VALUES (?,?)";
+                        if ($stmt_insert_evidence = $mysqli->prepare($query_insert_evidence)) {
+                            $stmt_insert_evidence->bind_param("ss", $i_status_ID, $full_path);
+                            if (!$stmt_insert_evidence->execute()) {
+                                echo "Error: Failed to insert file path for '$file_name'." . PHP_EOL;
+                                logError($stmt_insert_evidence->error);
+                            }
+                            $stmt_insert_evidence->close();
+                        } else {
+                            logError($mysqli->error);
+                        }
+                    } else {
+                        logError($stmt_insert_status->error);
+                    }
+                    $stmt_insert_status->close();
+                } else {
+                    logError($mysqli->error);
+                }
+            }
+        }
+    }
 }
 
 /*
@@ -220,8 +234,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
     }
 }
 ?>
-
-
 				<!-- Main content -->
 				<div class="col mt-1">
 					<div class="row mb-3">
@@ -282,8 +294,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 								Incidents added last 3 days: <?= $row['count'] ?>
 							</h4>
 						</div>
-						
-					
 					</div>
 					<div class="row mb-3">
 						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
@@ -354,7 +364,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							</div>
 						</div>
 					</div>
-					
 					<div class="row mb-3">
 						<div class="col-auto">
 							<div class="row">
@@ -393,7 +402,7 @@ if ($_SESSION['role'] == "reporter") {
 	$username = $_SESSION['username'];
 	$incident_query = "SELECT * FROM reporter_view WHERE username = '{$username}' ORDER BY incident_ID DESC";
 } else {
-	$incident_query = "SELECT * FROM all_incidents ORDER BY incident_ID DESC";
+	$incident_query = "SELECT * FROM all_incidents";
 }
 $incident_result = $mysqli->query($incident_query);
 if ($incident_result && $incident_result->num_rows > 0) {
@@ -592,7 +601,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 											<div class="row mb-3">
 												<div class="col">
 													<label for="evidence_<?= $incident['incident_ID']?>" class="form-label">Upload evidence</label>
-													<input class="form-control" type="file" name="evidence" id="evidence_<?= $incident['incident_ID']?>" required>
+													<input class="form-control" type="file" name="files[]" id="evidence_<?= $incident['incident_ID']?>" multiple required>
 												</div>
 											</div>
 											<input type="hidden" name="incident_ID" value="<?= $incident['incident_ID']?>">
