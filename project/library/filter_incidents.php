@@ -2,9 +2,10 @@
 session_name('project');
 session_start();
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+if (!isset($_SESSION["username"])) {
+    header('Location:index.php');
+    exit;
+}
 
 include_once("database.php");
 include_once("loging.php");
@@ -228,6 +229,11 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		} else {
 			$events_html = '<p>No comments yet.</p>';
 		}
+		$assets_html = '';
+		
+		foreach ($assets as $asset) {
+			$assets_html .= '<li class="mb-0">' . $asset . '</li>';
+		}
 		
 		$edit = <<<END
 		<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
@@ -242,6 +248,17 @@ if ($incident_result && $incident_result->num_rows > 0) {
 			</div>
 			<div class="offcanvas-body ">
 				<!-- Här börjar själva panelen -->
+				<div class="row">
+					<div class="col border">
+						<h5 class="fw-bold">Created by: </h5> <p>{$created['username']}</p>
+					</div>
+					
+					<div class="col border">
+						<h5 class="fw-bold">Affected Assets:</h5>
+						<ul>
+							{$assets_html}
+						</ul>
+					</div>
 				<div class="row">
 					<div class="col">
 						<form method="post" action="incident_dashboard.php">
@@ -283,7 +300,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 END;
 
 		$event = <<<END
-		<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_<{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
+		<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_event_{$row['incident_ID']}" aria-controls="incident_{$row['incident_ID']}">
 			Show events
 		</button>
 		
