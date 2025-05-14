@@ -258,7 +258,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 							
 							
 							<?php while ($row = $result->fetch_assoc()): ?>
-							<p class="mb-0 <?= ($row['status'] == "Resolved") ? 'text-success' : '' ?>">
+							<p class="mb-0 <?= ($row['status'] == "Resolved") ? 'text-success' : '' ?><?= ($row['status'] == "In progress") ? 'text-warning' : '' ?>">
 								<?= htmlspecialchars($row['status']) ?>
 							
 								:<?= htmlspecialchars($row['count']) ?>
