@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
     $severity_filter = isset($_POST['severity']) ? $mysqli->real_escape_string($_POST['severity']) : '';
 	$whereAdded = False;
 	if ($_SESSION['role'] == "reporter") {
-		$user_ID = $_SESSION['username'];
-		$query = "SELECT * FROM reporter_view WHERE username = '{$user_ID}'";
+		$username = $_SESSION['username'];
+		$query = "SELECT * FROM reporter_view WHERE username = '{$username}'";
 		$whereAdded = True;
 	} else {
 		$query = "SELECT * FROM all_incidents";
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
     $incident_result = $mysqli->query($query);
 } else {
     // No filter, load all incidents
-    $query = "SELECT * FROM all_incidents";
+    $query = "SELECT * FROM all_incidents2";
 	
     // Run the query for all incidents
     $incident_result = $mysqli->query($query);
