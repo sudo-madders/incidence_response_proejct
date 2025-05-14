@@ -6,9 +6,9 @@ include_once('loging.php');
 
 
 // Check if user is logged in
-if (!isset($_SESSION['user_ID'])) {
-    http_response_code(401);
-    die("Unauthorized access.");
+if (!isset($_SESSION["username"])) {
+    header('Location:index.php');
+    exit;
 }
 
 // Sanitize inputs

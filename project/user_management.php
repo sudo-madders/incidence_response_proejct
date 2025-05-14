@@ -4,8 +4,7 @@ require_once("template.php");
 
 // checks if the user is logged in, if not, the rest of the page won't be loaded
 if ($_SESSION["role"] != "administrator") {
-    header('HTTP/1.0 401 Unauthorized');
-    echo 'You must be administrator to access this page.';
+    header('Location:incident_dashboard.php');
     exit;
 }
 
