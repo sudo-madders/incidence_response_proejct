@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
 	$whereAdded = False;
 	if ($_SESSION['role'] == "reporter") {
 		$username = $_SESSION['username'];
-		$query = "SELECT * FROM reporter_view WHERE username = '{$username}'";
+		$query = "SELECT * FROM reporter_view WHERE username = '{$username} ORDER BY incident_ID DESC'";
 		$whereAdded = True;
 	} else {
 		$query = "SELECT * FROM all_incidents";
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
     $incident_result = $mysqli->query($query);
 } else {
     // No filter, load all incidents
-    $query = "SELECT * FROM all_incidents2";
+    $query = "SELECT * FROM all_incidents";
 	
     // Run the query for all incidents
     $incident_result = $mysqli->query($query);
@@ -317,7 +317,8 @@ END;
 			<option {$resolved} value="Resolved">Resolved</option>
 		</select>
 		END;
-		$row['occurred'] = $row['created']['timestamp'] ?? 'Unknown';
+		
+		$row['occurred'] = $row['created'] ?? 'Unknown';
 		$row['select'] = $select;
 		$row["edit"] = $edit;
 		$row['event'] = $event;
