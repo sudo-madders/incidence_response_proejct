@@ -8,6 +8,25 @@ if (isset($_FILES['files'])) {
     $incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
 
     $total_files = count($_FILES['files']['name']);
+	
+	if ($_SESSION['role'] == "reporter") {
+		$reporter_owns_incident = False;
+		$username = $_SESSION['username'];
+		$query = "SELECT incident_ID FROM reporter_view WHERE username = '{$username}";
+		$result = $mysqli->query($query);
+		if ($result && $result->num_rows > 0) {
+			while ($row = $result->fetch_assoc()) {
+				if ($row['incident_ID'] == $incident_ID) {
+					$reporter_owns_incident = True;
+				}
+			}
+		}
+		if (!$reporter_owns_incident) {
+			echo "Your not allowed to change this incident";
+			exit;
+		}
+		
+	}
 
     for ($i = 0; $i < $total_files; $i++) {
         $file_name = basename($_FILES['files']['name'][$i]);
@@ -79,6 +98,25 @@ if (isset($_FILES['files'])) {
 if (isset($_POST['comment'], $_POST['incident_ID'])) {
 	$comment = trim($_POST['comment']);  
 	$incident_ID = trim($_POST['incident_ID']);
+	
+	if ($_SESSION['role'] == "reporter") {
+		$reporter_owns_incident = False;
+		$username = $_SESSION['username'];
+		$query = "SELECT incident_ID FROM reporter_view WHERE username = '{$username}";
+		$result = $mysqli->query($query);
+		if ($result && $result->num_rows > 0) {
+			while ($row = $result->fetch_assoc()) {
+				if ($row['incident_ID'] == $incident_ID) {
+					$reporter_owns_incident = True;
+				}
+			}
+		}
+		if (!$reporter_owns_incident) {
+			echo "Your not allowed to change this incident";
+			exit;
+		}
+		
+	}
 
 	// Initialize an errors array to collect validation errors
 	$errors = [];
@@ -130,6 +168,8 @@ if (isset($_POST['comment'], $_POST['incident_ID'])) {
 		} else {
 			echo "Failed to insert into incident_status";
 		}
+	}else {
+		echo "Failed to make a comment";
 	}
 }
 
@@ -521,8 +561,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
                 <th>Severity</th>
 				<th>Occurred</th>
 				<th>Status</th>
-                <th>Actions</th>
-				<th>Events</th>
+                <th colspan="2">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -558,7 +597,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					</td>
                     <td>
 						<button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#incident_<?= htmlspecialchars($incident['incident_ID']) ?>" aria-controls="incident_<?= htmlspecialchars($incident['incident_ID']) ?>">
-							Edit
+							View
 						</button>
 						
 						<!-- Offcanvas, More selection -->

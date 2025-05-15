@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['filter'])) {
 	$whereAdded = False;
 	if ($_SESSION['role'] == "reporter") {
 		$username = $_SESSION['username'];
-		$query = "SELECT * FROM reporter_view WHERE username = '{$username} ORDER BY incident_ID DESC'";
+		$query = "SELECT * FROM reporter_view WHERE username = '{$username}' ORDER BY incident_ID DESC";
 		$whereAdded = True;
 	} else {
 		$query = "SELECT * FROM all_incidents";
