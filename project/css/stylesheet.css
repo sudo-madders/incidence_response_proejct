@@ -3,3 +3,37 @@
 	width: 80vw !important;
 }
 
+/* Custom hover effect only */
+.hover-effect:hover:not(.active) {
+    background-color: #e2e3e5 !important;
+}
+.bg-primary-mono {
+    background-color: #607d8b !important; /* Medium blue-gray */
+    color: white;
+}
+.bg-secondary-mono {
+    background-color: #eceff1; /* Very light gray */
+}
+.text-primary-mono {
+    color: #37474f; /* Darker blue-gray */
+}
+.text-secondary-mono {
+    color: #78909c; /* Medium-light blue-gray */
+}
+
+/* Coral Accent */
+/* Softer Coral Accent */
+/* Muted Coral Accent (in between) */
+.btn.btn-accent {
+    background-color: #f88379; /* A more muted coral */
+    color: white;
+    border-color: #f88379;
+}
+.btn.btn-accent:hover {
+    background-color: #e66a5e;
+    border-color: #e66a5e;
+}
+.accent-highlight {
+    color: #f88379;
+}
+

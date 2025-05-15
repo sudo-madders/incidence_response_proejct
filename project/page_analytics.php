@@ -2,8 +2,8 @@
 require_once("template.php");
 ?>
 
-<div class="col-md-8 border m-auto">
-	<div class="row border border-primary my-3">
+<div class="col border m-auto bg-white">
+	<div class="row">
 		<table class=" table table-striped table-bordered table-hover" style="width:100%">
 			<thead class="table-dark">
 				<tr>
@@ -82,13 +82,13 @@ require_once("template.php");
 			</tbody>
 		</table>
 	</div>
-</div>
+
 <script>
 $(document).ready(function() {
     $('#userTable').DataTable({
         ajax: {
-            url: 'library/get_tracking_data.php',   //  The PHP script that returns the JSON
-            dataSrc: 'data'       //  Tell DataTables where the data is
+            url: 'library/get_tracking_data.php',  
+            dataSrc: 'data'       
         },
         columns: [
             { data: 'visit_ID'},
@@ -100,7 +100,8 @@ $(document).ready(function() {
         ],
         scrollCollapse: true,
         scrollY: '400px',
-		scrollX: '100%'
+		scrollX: '100%',
+		order: [[0, 'desc']]
     });
 });
 </script>
