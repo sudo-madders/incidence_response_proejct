@@ -4,7 +4,8 @@ require_once("template.php");
 
 // checks if the user is logged in, if not, the rest of the page won't be loaded
 if ($_SESSION["role"] != "administrator") {
-    header('Location:incident_dashboard.php');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'You must be administrator to access this page.';
     exit;
 }
 
@@ -227,87 +228,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="col">
     <div class="row mb-3 border">
         <!-- add new user button -->
-        <button type="button" class="btn btn-lg btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
-
-        <div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="addNewUserLabel">Add new user</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-
-            <!-- offcanvas body -->
-            <div class="offcanvas-body">
-                <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation">
-                    
-                    <div class="mb-3 text-muted small">
-                        <span class="text-danger">*</span> Required fields
-                    </div>
-                        <label for="user_role" class="form-label">Select User Role</label>
-                        <select class="form-select" id="user_role" name="user_role" required>
-                            <option value="" selected disabled>Select role</option>
-                            <option value="Administrator">Administrator</option>
-                            <option value="Responder">Responder</option>
-                            <option value="Reporter">Reporter</option>
-                        </select>
-                        <div class="invalid-user-role">Please select a user role.</div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="first_name" class="form-label">First Name</label>
-                            <input type="text" id="first_name" name="first_name" class="form-control" required>
-                            <div class="invalid-first-name">Please provide a first name.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="last_name" class="form-label">Last Name</label>
-                            <input type="text" id="last_name" name="last_name" class="form-control" required>
-                            <div class="invalid-last-name">Please provide a last name.</div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="role" class="form-label">Select User Role</label>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="" selected disabled>Select role</option>
-                            <option value="Administrator">Administrator</option>
-                            <option value="Responder">Responder</option>
-                            <option value="Reporter">Reporter</option>
-                        </select>
-                        <div class="invalid-user-role">Please select a user role.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" id="username" name="username" class="form-control" required>
-                        <div class="invalid-feedback">Please choose a username.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" required>
-                        <div class="invalid-feedback">Please provide a valid email.</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" id="password" name="password" class="form-control" required minlength="8">
-                            <div class="invalid-feedback">Password must be at least 8 characters.</div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                            <div class="invalid-feedback">Passwords must match.</div>
-                        </div>
-                    </div>
-
-                    <button type="submit" name="submit" class="btn btn-primary">Add User</button>
-                    <a href="user_management.php" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
-        </div>
+        <!-- with offcanvas -->
+<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewUser" aria-labelledby="addNewUserLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="addNewUserLabel">Add new user</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
+    <div class="offcanvas-body">
+        <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>" class="needs-validation" novalidate>
+            <div class="mb-3 text-muted small">
+                <span class="text-danger">*</span> indicates required field
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="first_name" class="form-label">First Name <span class="text-danger">*</span></label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
+                    <div class="invalid-feedback">Please provide a valid first name (letters only).</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="last_name" class="form-label">Last Name <span class="text-danger">*</span></label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" required pattern="[A-Za-z\s]+" maxlength="50">
+                    <div class="invalid-feedback">Please provide a valid last name (letters only).</div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="role" class="form-label">User Role <span class="text-danger">*</span></label>
+                <select class="form-select" id="role" name="role" required>
+                    <option value="" selected disabled>Select role</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Responder">Responder</option>
+                    <option value="Reporter">Reporter</option>
+                </select>
+                <div class="invalid-feedback">Please select a user role.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                <input type="text" id="username" name="username" class="form-control" required pattern="[A-Za-z0-9_]+" minlength="4" maxlength="30">
+                <div class="invalid-feedback">Username must be 4-30 characters (letters, numbers, underscores only).</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" id="email" name="email" class="form-control" required maxlength="100">
+                <div class="invalid-feedback">Please provide a valid email.</div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                    <input type="password" id="password" name="password" class="form-control" required minlength="8" maxlength="100">
+                    <div class="invalid-feedback">Password must be at least 8 characters.</div>
+                    <small class="form-text text-muted">Minimum 8 characters</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8" maxlength="100">
+                    <div class="invalid-feedback">Passwords must match.</div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button type="submit" name="submit" class="btn btn-primary">Add User</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
     <div class="row mb-3 border">
         <!-- Users Table -->
         <div class="mt-4">
@@ -400,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         
                                         <div class="mb-3">
                                             <label class="form-label">Role</label>
-                                            <select class="form-select" name="role">
+                                            <select class="form-select" name="role" required>
                                                 <option value="Administrator" <?= $row['role'] == 'Administrator' ? 'selected' : '' ?>>Administrator</option>
                                                 <option value="Reporter" <?= $row['role'] == 'Reporter' ? 'selected' : '' ?>>Reporter</option>
                                                 <option value="Responder" <?= $row['role'] == 'Responder' ? 'selected' : '' ?>>Responder</option>
@@ -439,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </table>
         </div>
     </div>
-
+</div>
 
 <script>
 // Toggle password fields when checkbox is clicked
@@ -518,7 +510,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     })()
-
 });
 </script>
 
