@@ -2,13 +2,17 @@
 include_once("template.php");
 include_once('library/database.php');
 
+/*
+* This if-statment handels fileupload. It checks if the user is a reporter and if they are
+* allowed to upload evidence.
+*/
 if (isset($_FILES['files'])) {
     $allowed_types = ["image/jpeg", "image/png", "image/gif", "application/pdf", "text/plain"];
     $upload_dir = "uploads/";
     $incident_ID = $mysqli->real_escape_string($_POST['incident_ID']);
 
-    $total_files = count($_FILES['files']['name']);
-	
+    
+	// Reporter check
 	if ($_SESSION['role'] == "reporter") {
 		$reporter_owns_incident = False;
 		$username = $_SESSION['username'];
@@ -27,7 +31,9 @@ if (isset($_FILES['files'])) {
 		}
 		
 	}
-
+	// Counting how many files are upload
+	$total_files = count($_FILES['files']['name']);
+	// Loops over all the files
     for ($i = 0; $i < $total_files; $i++) {
         $file_name = basename($_FILES['files']['name'][$i]);
         $file_tmp = $_FILES['files']['tmp_name'][$i];
@@ -46,15 +52,15 @@ if (isset($_FILES['files'])) {
                 echo "Error: File '$file_name' is too large." . PHP_EOL;
                 continue; // Skip to the next file
             }
-
+			
             if (move_uploaded_file($file_tmp, $full_path)) {
                 // File uploaded successfully, now record it in the database
 
                 // First, get the current status_ID for the incident
-                $query_select_status = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}' ORDER BY status_ID DESC LIMIT 1";
+                $query_select_status = "SELECT status_ID, MAX(timestamp) as timestamp FROM incident_status WHERE incident_ID = {$incident_ID} GROUP BY status_ID ORDER BY timestamp desc limit 1";
                 $result = $mysqli->query($query_select_status);
                 $status_row = $result->fetch_assoc();
-                $status_ID = $status_row ? $status_row['status_ID'] : null;
+                $status_ID = $status_row['status_ID'];
 
                 // Insert a new entry into incident_status
                 $query_insert_status = "
@@ -141,8 +147,9 @@ if (isset($_POST['comment'], $_POST['incident_ID'])) {
 	// If validation passed, proceed to the database operations
 	$comment = $mysqli->real_escape_string($comment);
 	$incident_ID = $mysqli->real_escape_string($incident_ID);
-
-	$query = "SELECT status_ID FROM incident_status WHERE incident_ID = '{$incident_ID}'";
+	
+	// Gets the status
+	$query = "SELECT status_ID, MAX(timestamp) as timestamp FROM incident_status WHERE incident_ID = {$incident_ID} GROUP BY status_ID ORDER BY timestamp desc limit 1";
 	$result = $mysqli->query($query);
 	$status_row = $result->fetch_assoc();
 	$status_ID = $status_row['status_ID'];
@@ -150,7 +157,7 @@ if (isset($_POST['comment'], $_POST['incident_ID'])) {
 	$query = "
 		INSERT INTO incident_status (status_ID, incident_ID, user_ID)
 		VALUES (?,?,?)";
-		
+	// Inserts into the database
 	if ($stmt = $mysqli->prepare($query)) {
 		$stmt->bind_param("sss", $status_ID, $incident_ID, $_SESSION['user_ID']);
 		logError($stmt->error);
@@ -276,6 +283,7 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 ?>
 				<!-- Main content -->
 				<div class="col mt-1">
+					<!-- First row that contains some incident tracking -->
 					<div class="row mb-3">
 						<div class="col">
 							<?php 
@@ -284,8 +292,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 								GROUP BY severity
 								ORDER BY s.severity_ID DESC";
 								$result = $mysqli->query($query);
-								
-								
 							?>
 							
 							<?php while ($row = $result->fetch_assoc()): ?>
@@ -339,7 +345,6 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 						<button type="button" class="btn fs-4 btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewIncident" aria-controls="addNewIncident">
 						Add new incident
 						</button>
-						<!-- Offcanvas, More selection -->
 						<div class="offcanvas offcanvas-end offcanvas-md offcanvas_width" tabindex="-1" id="addNewIncident" aria-labelledby="addNewIncidentLabel">
 							<div class="offcanvas-header">
 								<h3 class="offcanvas-title text-primary-mono fw-bold" id="addNewIncidentLabel">Add new incident</h3>
@@ -438,15 +443,19 @@ if (isset($_POST['incident_type'], $_POST['severity'], $_POST['description'])) {
 					</div>
 
 <?php
+
+// Selects the right query, depening on if the user is reporter or not
 if ($_SESSION['role'] == "reporter") {
 	$username = $_SESSION['username'];
 	$incident_query = "SELECT * FROM reporter_view WHERE username = '{$username}' ORDER BY incident_ID DESC";
 } else {
 	$incident_query = "SELECT * FROM all_incidents";
 }
+// Executes the query
 $incident_result = $mysqli->query($incident_query);
 if ($incident_result && $incident_result->num_rows > 0) {
 	$incidents = [];
+	// Loops over all the rows that got returned
 	while ($row = $incident_result->fetch_assoc()) {
 		/*Get all the assets associated with an incident*/
 		$assets = [];
@@ -468,11 +477,6 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		JOIN status s ON i_s.status_ID = s.status_ID
 		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
 		
-		$comments = [];
-		$evidence = [];
-		$events = [];
-		$created = [];
-		$created['assets'] = $assets;
 		$result = $mysqli->query($query);
 		
 		if (!($result && $result->num_rows > 0)) {
@@ -486,13 +490,17 @@ if ($incident_result && $incident_result->num_rows > 0) {
 		WHERE incident_ID = " . $row['incident_ID'] . " ORDER BY timestamp";
 		}
 		$result = $mysqli->query($query);
+		
+		$comments = [];
+		$evidence = [];
+		$events = [];
+		$created = [];
+		$created['assets'] = $assets;
 		logError($query);
 		if ($result && $result->num_rows > 0) {
 			$first = True;
 			while ($i_status_ID_row = $result->fetch_assoc()) {
-				/*This section of the code get the comment from a certain incident_status_ID*/
-				$comment_query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
-				$comment_result = $mysqli->query($comment_query);
+				// Creates an array contaning the time and user that created the incident
 				if ($first) {
 					$status_changed = [];
 					if (isset($i_status_ID_row['username'])) {
@@ -509,9 +517,13 @@ if ($incident_result && $incident_result->num_rows > 0) {
 					$first = False;
 					$created['timestamp'] = $row['created'];
 				}
+				
 				$evidence_query = "SELECT path FROM evidence WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
 				$evidence_result = $mysqli->query($evidence_query);
 				
+				$comment_query = "SELECT comment FROM comment WHERE i_status_ID = '{$i_status_ID_row['i_status_ID']}'";
+				$comment_result = $mysqli->query($comment_query);
+				// Created arrays containing comments, evidence and status changes on an incident
 				if ($comment_result && $comment_result->num_rows > 0) {
 					$comment = [];
 					$comment_text = $comment_result->fetch_assoc();
@@ -541,15 +553,17 @@ if ($incident_result && $incident_result->num_rows > 0) {
 				}
 			}
 		}
+		// Adds all the arrays to each incident
 		$row['created'] = $created;
 		$row['assets'] = $assets;
 		$row['events'] = $events;
 		$row['evidence'] = $evidence;
 		$row['comments'] = $comments;
-		$incidents[] = $row;
+		$incidents[] = $row; // New array
 	}
 }
 ?>
+<!-- Loops over all the incidents and created offcanvas for each button -->
 <?php if (!empty($incidents)): ?>
     <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
     <table class="table table-striped table-bordered align-middle" id="incident_table">
@@ -565,6 +579,7 @@ if ($incident_result && $incident_result->num_rows > 0) {
             </tr>
         </thead>
         <tbody>
+			<!-- Created the table rows -->
             <?php foreach ($incidents as $incident): ?>
                 <tr>
                     <td><?= htmlspecialchars($incident['incident_ID']) ?></td>
@@ -767,7 +782,7 @@ $(document).ready(function() {
     var $severityFilter = $("#severity");
     var $myTable = $("#incident_table");
     var $tableBody = $myTable.find("tbody");
-
+	// Dynamiclly filters the table on incident type and severity
     function filterTable() {
         var formData = new FormData();
         formData.append("incident_type", $incidentFilter.val());
@@ -789,7 +804,7 @@ $(document).ready(function() {
             console.error(`There was an error: ${textStatus}`, errorThrown);
         });
     }
-
+	
     function updateTable(data) {
         // Clear the existing table rows
         $tableBody.empty();
@@ -814,7 +829,7 @@ $(document).ready(function() {
     $incidentFilter.on('change', filterTable);
     $severityFilter.on('change', filterTable);
 	
-	
+	// Dynamiclly updates the incident status
 	$(document).on('change', 'select[name="status"]', function() {
         const incidentId = $(this).attr('id').replace('select_', '');
         const newStatus = $(this).val();
@@ -833,14 +848,14 @@ $(document).ready(function() {
             alert('Failed to update status.');
         });
     });
-	
+	// You much check atleast on button of affected assets when creating an incident
 	$('#checkBtn').click(function() {
         checked = $("input[type=checkbox]:checked").length;
 
         if(!checked) {
             alert("You must check at least one checkbox.");
             return false;
-        }
+        }´
     });
 });
 </script>

@@ -2,12 +2,17 @@
 session_name('project');
 session_start();
 
+/*
+* This file recives a post request with filter variables and returns an array with the correct data.
+* It also created html-code for the buttons
+*/
+
 if (!isset($_SESSION["username"])) {
     header('Location:index.php');
     exit;
 }
 
-include_once("database.php");
+require_once("database.php");
 include_once("loging.php");
 
 $incident_type_filter = '';

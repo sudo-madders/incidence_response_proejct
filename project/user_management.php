@@ -228,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="col">
     <div class="row mb-3 border">
         <!-- add new user button -->
-        <button type="button" class="btn btn-accent mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
+        <button type="button" class="btn btn-accent btn-lg mx-auto" data-bs-toggle="offcanvas" data-bs-target="#addNewUser" aria-controls="addNewUser">
             Add new user
         </button>
         <!-- with offcanvas -->
@@ -445,19 +445,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Existing offcanvas handler
-    document.addEventListener('click', function(event) {
-        if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
-            const targetId = event.target.getAttribute('data-bs-target');
-            const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
-            if (offcanvasElement) {
-                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
-                offcanvas.show();
-            }
-        }
-    });
-
     // Form validation
     (function () {
         'use strict'

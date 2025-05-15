@@ -4,16 +4,13 @@ include("template.php");
 
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-
+		// Based on https://developers.google.com/chart/interactive/docs/quick_start
       // Load the Visualization API and the corechart package.
       google.charts.load('current', {'packages':['corechart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
       google.charts.setOnLoadCallback(drawChart);
 
-      // Callback that creates and populates a data table,
-      // instantiates the pie chart, passes in the data and
-      // draws it.
       function drawChart() {
 	fetch('library/get_chart_data.php')
     .then(response => {
@@ -35,7 +32,7 @@ include("template.php");
         });
 		
 		var options = {
-            title: 'Incident Types',
+            title: 'Incident Types, %',
             backgroundColor: '#eceff1' // Light gray background for the whole chart
         }
 
@@ -52,7 +49,7 @@ include("template.php");
     </script>
 
 <div class="col m-auto">
-	<div class="row┬┤ my-3 align-items-center">
+	<div class="row my-3 align-items-center">
     <!--Div that will hold the pie chart-->
     <div id="chart_div" class="m-auto bg-secondary-mono" style="height: 600px; width: 600px;"></div>
 </div>
