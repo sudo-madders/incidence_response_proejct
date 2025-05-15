@@ -1,5 +1,10 @@
 <?php 
 require_once("template.php");
+
+if ($_SESSION["role"] != "administrator") {
+    header('Location:incident_dashboard.php');
+    exit;
+}
 ?>
 
 <div class="col border m-auto bg-white">

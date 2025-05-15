@@ -392,7 +392,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         
                                         <div class="mb-3">
                                             <label class="form-label">Role</label>
-                                            <select class="form-select" name="role" required>
+                                            <select class="form-select" name="role">
                                                 <option value="Administrator" <?= $row['role'] == 'Administrator' ? 'selected' : '' ?>>Administrator</option>
                                                 <option value="Reporter" <?= $row['role'] == 'Reporter' ? 'selected' : '' ?>>Reporter</option>
                                                 <option value="Responder" <?= $row['role'] == 'Responder' ? 'selected' : '' ?>>Responder</option>

@@ -93,3 +93,83 @@ WHERE (ist.timestamp, ist.i_status_ID) IN (
     GROUP BY incident_ID
 )
 ORDER BY i.incident_ID DESC;
+
+
+
+SELECT
+    i.incident_ID AS incident_ID,
+    i.description AS description,
+    i.created AS created,
+    it.incident_type AS incident_type,
+    sv.severity AS severity,
+    latest_status.status AS status,
+    first_reporter.username AS username
+FROM
+    incident i
+JOIN
+    incident_type it ON i.incident_type_ID = it.incident_type_ID
+JOIN
+    severity sv ON i.severity_ID = sv.severity_ID
+JOIN (
+    SELECT
+        is1.incident_ID AS incident_ID,
+        is1.status_ID AS status_ID,
+        is1.user_ID AS user_ID,
+        is1.timestamp AS timestamp,
+        s.status AS status
+    FROM
+        incident_status is1
+    JOIN (
+        SELECT
+            incident_ID,
+            MAX(timestamp) AS latest_timestamp
+        FROM
+            incident_status
+        GROUP BY
+            incident_ID
+    ) is2 ON is1.incident_ID = is2.incident_ID
+           AND is1.timestamp = is2.latest_timestamp
+    JOIN
+        status s ON is1.status_ID = s.status_ID
+    WHERE (is1.timestamp, is1.i_status_ID) IN (
+        SELECT
+            MAX(timestamp),
+            MAX(i_status_ID)
+        FROM
+            incident_status
+        GROUP BY
+            incident_ID
+    )
+) latest_status ON i.incident_ID = latest_status.incident_ID
+JOIN (
+    SELECT
+        is1.incident_ID AS incident_ID,
+        is1.user_ID AS user_ID,
+        is1.timestamp AS timestamp,
+        u.username AS username
+    FROM
+        incident_status is1
+    JOIN (
+        SELECT
+            incident_ID,
+            MIN(timestamp) AS earliest_timestamp
+        FROM
+            incident_status
+        GROUP BY
+            incident_ID
+    ) is2 ON is1.incident_ID = is2.incident_ID
+           AND is1.timestamp = is2.earliest_timestamp
+    JOIN
+        user u ON is1.user_ID = u.user_ID
+     WHERE (is1.incident_ID, is1.timestamp, is1.i_status_ID) IN (
+        SELECT
+            incident_ID,
+            MIN(timestamp),
+            MIN(i_status_ID)
+        FROM
+            incident_status
+        GROUP BY
+            incident_ID
+    )
+) first_reporter ON i.incident_ID = first_reporter.incident_ID
+
