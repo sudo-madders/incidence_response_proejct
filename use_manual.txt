@@ -1,0 +1,8 @@
+- On the incident dashboard every user can add a new incident using the "Add new incident" button. It will take you to a form where you need to fill in the relevant information.
+
+- For each incident you can view it to see additional information, add comments or evidence. You can also show events to see a list of all changes that have been made to the incident.
+
+- Under user management the administration role can add a new user in a certain role. Make changes to the selected user, first name, last name, role etc. You can also delete a user.
+
+- Under page analytics the administration can see a table of all the site request, which ip, browser, page and user involved. Also viewed is a table for each page and each IP address.
+ 

@@ -22,14 +22,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $user = $mysqli->query("SELECT * FROM user WHERE user_id = $id")->fetch_assoc();
 ?>
-
-<h3>Edit Role for <?= htmlspecialchars($user['username']) ?></h3>
-<form method="post">
-    <label>New Role:</label>
-    <select name="role" class="form-select" required>
-        <option value="Administrator">Administrator</option>
-        <option value="Responder">Responder</option>
-        <option value="Reporter">Reporter</option>
-    </select>
-    <button type="submit" class="btn btn-primary mt-2">Update Role</button>
-</form>
