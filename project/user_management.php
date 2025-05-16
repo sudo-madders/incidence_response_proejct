@@ -1,4 +1,6 @@
 <?php 
+//output buffering - the code is sending the header once, so to avoid any erro
+//i chose to store all the buffer then send it to the browser. 
 ob_start();
 require_once("template.php");
 
@@ -9,9 +11,10 @@ if ($_SESSION["role"] != "administrator") {
     exit;
 }
 
-// Handle all form submissions
+// Handle all form submissions in the page
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Add new user logic
+   
+    // the php code for adding new user
     if (isset($_POST['submit'])) {
         $errors = [];
         $required = ['username', 'password', 'confirm_password', 'email', 'first_name', 'last_name', 'role'];
@@ -23,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Validate email format
+        // Validate email format 
         if (!empty($_POST['email']) && !filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = "Invalid email format";
         }
@@ -44,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = "Error: " . implode(", ", $errors);
             die($error_message);
         }
-
+        //sanitizing user input and escaping sql injection
         $username = $mysqli->real_escape_string(trim($_POST['username']));
         $email = $mysqli->real_escape_string(trim($_POST['email']));
         $first_name = $mysqli->real_escape_string(trim($_POST['first_name']));
@@ -87,17 +90,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Error: Email already exists");
         }
 
-        // Insert new user
+        // Insert the new user into the database
         $query = "INSERT INTO user (username, password, email, first_name, last_name, user_role_ID)
                   VALUES (?, ?, ?, ?, ?, ?)";
-
+        //preparing the statement to be used
         $stmt = $mysqli->prepare($query);
         if (!$stmt) {
             die("Prepare failed: " . $mysqli->error);
         }
 
+        //binding the parameters, straings and integer
         $stmt->bind_param("sssssi", $username, $password, $email, $first_name, $last_name, $role_id);
 
+        //Show the user if any error happens
         if ($stmt->execute()) {
             header('Location: ' . $_SERVER['PHP_SELF'] . '?success=add');
             exit();
@@ -105,7 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die("Error creating user: " . $stmt->error);
         }
     }
-    // Edit user logic
+
+    // php code for editing user information
     elseif (isset($_POST['edit_user'])) {
         
         $user_id = intval($_POST['user_id']);
@@ -137,13 +143,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($_POST['new_password'] !== $_POST['confirm_password']) {
                 die("Error: Passwords do not match");
             }
+            //hashing the password for better security
             $new_password = password_hash($_POST['new_password'], PASSWORD_DEFAULT);
             $password_update = ", password = ?";
             $params[] = $new_password;
         }
 
         // Get role ID
-        $role_id = 1; // Default to admin
+        $role_id = 1; // the role id for admin is hardcoded: 1
         if (!empty($_POST['role'])) {
             $role_stmt = $mysqli->prepare("SELECT user_role_ID FROM user_role WHERE role = ?");
             $role_stmt->bind_param("s", $_POST['role']);
@@ -189,6 +196,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- Success messages -->
 <?php if (isset($_GET['success'])): ?>
+    
     <!-- Success Modal -->
     <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -216,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-    <!-- showing the success message -->
+    <!-- the js code for showing the success message -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const successModal = new bootstrap.Modal(document.getElementById('successModal'));
@@ -434,7 +442,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <script>
-// Toggle password fields when checkbox is clicked
+// showing the fields for chaning passwords, if the change password box is clicked on
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('[id^="changePassword_"]').forEach(checkbox => {
         const userId = checkbox.id.split('_')[1];
@@ -445,6 +453,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // offcanvas handler
+    document.addEventListener('click', function(event) {
+        if (event.target.matches('[data-bs-toggle="offcanvas"]')) {
+            const targetId = event.target.getAttribute('data-bs-target');
+            const offcanvasElement = document.getElementById(targetId.startsWith('#') ? targetId.substring(1) : targetId);
+            if (offcanvasElement) {
+                const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasElement) || new bootstrap.Offcanvas(offcanvasElement);
+                offcanvas.show();
+            }
+        }
+    });
+
     // Form validation
     (function () {
         'use strict'
